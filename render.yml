@@ -1,0 +1,65 @@
+services:
+  # API Gateway - Public Web Service
+  - type: web
+    name: api-gateway
+    env: node
+    buildCommand: pnpm install && pnpm run build:gateway
+    startCommand: node dist/apps/api-gateway/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: USER_SERVICE_HOST
+        fromService:
+          type: pserv
+          name: ms-user
+          property: host
+      - key: USER_SERVICE_PORT
+        value: 10000
+      - key: AUTH_SERVICE_HOST
+        fromService:
+          type: pserv
+          name: ms-auth
+          property: host
+      - key: AUTH_SERVICE_PORT
+        value: 10000
+      # Thêm các service khác...
+
+  # User Microservice - Private Service
+  - type: pserv
+    name: ms-user
+    env: node
+    buildCommand: pnpm install && pnpm run build:ms-user
+    startCommand: node dist/apps/ms-user/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  # Auth Microservice - Private Service
+  - type: pserv
+    name: ms-auth
+    env: node
+    buildCommand: pnpm install && pnpm run build:ms-auth
+    startCommand: node dist/apps/ms-auth/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  # Loyalty Microservice - Private Service
+  - type: pserv
+    name: ms-loyalty
+    env: node
+    buildCommand: pnpm install && pnpm run build:ms-loyalty
+    startCommand: node dist/apps/ms-loyalty/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  # Rewards Microservice - Private Service
+  - type: pserv
+    name: ms-rewards
+    env: node
+    buildCommand: pnpm install && pnpm run build:ms-rewards
+    startCommand: node dist/apps/ms-rewards/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production

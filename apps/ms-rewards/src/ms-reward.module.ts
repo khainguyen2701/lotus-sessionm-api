@@ -1,0 +1,19 @@
+import { Module } from '@nestjs/common';
+import { MsRewardController } from './ms-reward.controller';
+import { MsRewardService } from './ms-reward.service';
+import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '@app/database';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    DatabaseModule,
+    TypeOrmModule.forFeature([]),
+  ],
+  controllers: [MsRewardController],
+  providers: [MsRewardService],
+})
+export class MsRewardModule {}
