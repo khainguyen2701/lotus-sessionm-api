@@ -4,7 +4,7 @@ import { MessagePatternForMicro } from '@app/common/messagePattern/index.message
 import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
-@Controller('api/v1/loyalty')
+@Controller('ms-loyalty')
 export class LoyaltyController {
   constructor(@Inject('LOYALTY_SERVICE') private loyaltyClient: ClientProxy) {}
 

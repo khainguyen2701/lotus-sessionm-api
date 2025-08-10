@@ -1,11 +1,12 @@
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { Logger } from '@nestjs/common';
 
 export default function createTypeOrmPgFactory(
   config: ConfigService,
 ): TypeOrmModuleOptions {
-  return {
-    type: 'postgres',
+  const dbConfig = {
+    type: 'postgres' as const,
     host: config.get('database.host'),
     port: config.get<number>('database.port'),
     username: config.get('database.username'),
@@ -20,4 +21,17 @@ export default function createTypeOrmPgFactory(
       },
     },
   };
+
+  // Debug logging
+  const logger = new Logger('TypeORM');
+  logger.log('🔧 TypeORM Configuration:');
+  logger.log(`- Host: ${dbConfig.host}`);
+  logger.log(`- Port: ${dbConfig.port}`);
+  logger.log(`- Database: ${dbConfig.database}`);
+  logger.log(`- Username: ${dbConfig.username}`);
+  logger.log(`- Synchronize: ${dbConfig.synchronize}`);
+  logger.log(`- AutoLoadEntities: ${dbConfig.autoLoadEntities}`);
+  logger.log(`- SSL Enabled: ${dbConfig.ssl}`);
+
+  return dbConfig;
 }

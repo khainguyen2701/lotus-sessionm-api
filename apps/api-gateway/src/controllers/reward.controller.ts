@@ -4,7 +4,7 @@ import { MessagePatternForMicro } from '@app/common/messagePattern/index.message
 import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
-@Controller('api/v1/reward')
+@Controller('ms-reward')
 export class RewardController {
   constructor(@Inject('REWARDS_SERVICE') private rewardsClient: ClientProxy) {}
 

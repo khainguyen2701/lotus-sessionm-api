@@ -4,6 +4,7 @@ import { MsLoyaltyService } from './ms-loyalty.service';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@app/database';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import * as entities from '@app/database/entities';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       isGlobal: true,
     }),
     DatabaseModule,
-    TypeOrmModule.forFeature([]),
+    TypeOrmModule.forFeature(Object.values(entities)),
   ],
   controllers: [MsLoyaltyController],
   providers: [MsLoyaltyService],

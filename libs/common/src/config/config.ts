@@ -10,8 +10,7 @@ export default () => ({
     // database_ssl: process.env.DATABASE_SSL === 'true' ? true : false,
     // database_max_connections: process.env.DATABASE_CONNECT_LIMIT,
     type: 'postgres',
-    synchronize: true,
-    entities: [],
+    synchronize: process.env.DATABASE_SYNC === 'true',
     ssl: process.env.DATABASE_SSL === 'true' ? true : false,
     maxConnections: process.env.DATABASE_CONNECT_LIMIT
       ? parseInt(process.env.DATABASE_CONNECT_LIMIT, 10)

@@ -8,7 +8,7 @@ import createTypeOrmPgFactory from './createTypeOrmFactory/pg.factory';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: 'env',
+      envFilePath: '.env',
       isGlobal: true,
       load: [configuration],
     }),
