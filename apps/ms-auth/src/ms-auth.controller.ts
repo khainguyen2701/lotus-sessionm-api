@@ -1,6 +1,9 @@
-import { AuthMemberSignUpDTO } from '@app/common/dto/ms-auth/auth-member.dto';
+import {
+  AuthMemberSignInDTO,
+  AuthMemberSignUpDTO,
+} from '@app/common/dto/ms-auth/auth-member.dto';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
-import { AccountsEntity, UsersEntity } from '@app/database';
+import { UsersEntity } from '@app/database';
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { MsAuthService } from './ms-auth.service';
@@ -8,13 +11,15 @@ import { MsAuthService } from './ms-auth.service';
 export class MsAuthController {
   constructor(private readonly msAuthService: MsAuthService) {}
 
-  // @MessagePattern({ cms: 'auth.sign-in' })
-  // async signIn(
-  //   body: AuthSignInDTO,
-  // ): Promise<{ access_token: string; refresh_token: string } | undefined> {
-  //   const data = await this.msAuthService.signIn(body);
-  //   return data;
-  // }
+  @MessagePattern({ cmd: MessagePatternForMicro.AUTH.MEMBER_SIGNIN })
+  async signIn(
+    body: AuthMemberSignInDTO,
+  ): Promise<
+    { access_token: string; user_id: string; refresh_token: string } | undefined
+  > {
+    const data = await this.msAuthService.signIn(body);
+    return data;
+  }
 
   @MessagePattern({ cmd: MessagePatternForMicro.AUTH.MEMBER_SIGNUP })
   async signUp(body: AuthMemberSignUpDTO): Promise<{

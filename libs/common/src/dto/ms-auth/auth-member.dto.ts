@@ -37,12 +37,12 @@ export class AuthMemberSignUpDTO {
 
 export class AuthMemberSignInDTO {
   @ApiProperty({
-    description: 'Username for login',
-    example: 'john_doe',
+    description: 'Email for login',
+    example: 'john_doe@example.com',
   })
   @IsString()
   @IsNotEmpty()
-  username: string;
+  email: string;
 
   @ApiProperty({
     description: 'Password for login',

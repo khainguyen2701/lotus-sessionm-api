@@ -195,6 +195,31 @@ export class AuthRepository {
     }
   }
 
+  async findAccountByEmail(email: string): Promise<AccountsEntity | null> {
+    if (!email) {
+      throw new Error('Email is required');
+    }
+
+    try {
+      const account = await this.accountEntities.findOne({
+        where: { account_email: email.toLowerCase().trim() },
+        relations: ['user'],
+      });
+
+      this.logger.debug(
+        `Account lookup for email: ${email} - ${account ? 'Found' : 'Not found'}`,
+      );
+
+      return account;
+    } catch (error) {
+      this.logger.error(
+        `Error finding account by email: ${email}`,
+        error.stack,
+      );
+      throw new DatabaseTransactionException('Failed to find account');
+    }
+  }
+
   /**
    * Check if email already exists in accounts table
    * @param email - Email to check

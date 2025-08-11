@@ -1,6 +1,4 @@
 import { RpcToHttpExceptionFilter } from '@app/common/filters/rpc-exception.filter';
-import { ResponseInterceptor } from '@app/common/interceptors/error.interceptor';
-import { TransformInterceptor } from '@app/common/interceptors/transform.interceptor';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';

@@ -11,7 +11,10 @@ import { AuthSignInDTO, AuthSignUpDTO } from './dto/auth.dto';
 import { RefreshTokenClassDto } from './dto/token.dto';
 import { AuthRepository } from './repositories/auth.repository';
 import { ExpiredSessionException } from '@app/common/httpCode/http.custom';
-import { AuthMemberSignUpDTO } from '@app/common/dto/ms-auth/auth-member.dto';
+import {
+  AuthMemberSignInDTO,
+  AuthMemberSignUpDTO,
+} from '@app/common/dto/ms-auth/auth-member.dto';
 import { AccountsEntity, UsersEntity } from '@app/database';
 
 @Injectable()
@@ -20,39 +23,64 @@ export class MsAuthService {
     private authRepo: AuthRepository,
     private jwtService: JwtService,
   ) {}
-  // async signIn(
-  //   body: AuthSignInDTO,
-  // ): Promise<{ access_token: string; refresh_token: string } | undefined> {
-  //   try {
-  //     const { password, username } = body;
-  //     if (!password || !username) {
-  //       throw new UnauthorizedException('Missing username or password');
-  //     }
-  //     const user = await this.authRepo.findOneByUserName({ username });
-  //     if (!user || Object.keys(user)?.length === 0) {
-  //       throw new BadRequestException('Username or password not match');
-  //     }
-  //     const isMatchPassword = await compare(password, user.password);
-  //     if (!isMatchPassword)
-  //       throw new BadRequestException('Password is not match');
-  //     const { password: has_password, ...rest } = user;
-  //     const accessToken = await this.jwtService.signAsync(
-  //       { payload: rest },
-  //       { secret: process.env.SECRET_KEY_JWT, expiresIn: '1m' },
-  //     );
-  //     const refreshToken = await this.jwtService.signAsync(
-  //       { payload: rest },
-  //       { secret: process.env.SECRET_KEY_JWT, expiresIn: '1h' },
-  //     );
-  //     return { access_token: accessToken, refresh_token: refreshToken };
-  //   } catch (error: unknown) {
-  //     const message =
-  //       typeof error === 'object' && error !== null && 'message' in error
-  //         ? (error as { message?: string }).message
-  //         : 'Unauthorized';
-  //     throw new UnauthorizedException(message);
-  //   }
-  // }
+
+  // Sign in member portal
+  /**
+   * Sign in member portal
+   * @param body - AuthMemberSignInDTO
+   * @returns Promise<{ access_token: string; user_id: string; refresh_token: string } | undefined>
+   */
+  async signIn(
+    body: AuthMemberSignInDTO,
+  ): Promise<
+    { access_token: string; user_id: string; refresh_token: string } | undefined
+  > {
+    try {
+      const { password, email } = body;
+      if (!password || !email) {
+        throw new UnauthorizedException('Missing email or password');
+      }
+      const account = await this.authRepo.findAccountByEmail(email);
+      if (!account || Object.keys(account)?.length === 0) {
+        throw new BadRequestException('Username or password not match');
+      }
+      const isMatchPassword = await compare(password, account.password);
+      if (!isMatchPassword)
+        throw new BadRequestException('Password is not match');
+
+      const accessToken = await this.jwtService.signAsync(
+        { payload: account.user },
+        { secret: process.env.SECRET_KEY_JWT, expiresIn: '7d' },
+      );
+      const refreshToken = await this.jwtService.signAsync(
+        { payload: account.user },
+        { secret: process.env.SECRET_KEY_JWT, expiresIn: '14d' },
+      );
+      return {
+        access_token: accessToken,
+        user_id: account.user.id,
+        refresh_token: refreshToken,
+      };
+    } catch (error: unknown) {
+      const message =
+        typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message?: string }).message
+          : 'Unauthorized';
+      throw new UnauthorizedException(message);
+    }
+  }
+
+  //Sign up member portal
+  /**
+   * Sign up member portal
+   * @param body - AuthMemberSignUpDTO
+   * @returns Promise<{
+   *   user_id: string;
+   *   account_id: string;
+   *   user: Partial<UsersEntity>;
+   *   access_token: string;
+   * }>
+   */
   async signUpMemberPortal(body: AuthMemberSignUpDTO): Promise<{
     user_id: string;
     account_id: string;
@@ -69,6 +97,7 @@ export class MsAuthService {
       access_token,
     };
   }
+
   // async refreshToken(
   //   body: RefreshTokenClassDto,
   // ): Promise<{ access_token: string; refresh_token: string }> {
