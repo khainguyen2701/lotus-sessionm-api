@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -47,6 +48,7 @@ export class UsersEntity {
   @OneToOne(() => AccountsEntity, (account) => account.user, {
     cascade: true,
   })
+  @JoinColumn({ name: 'account_id' })
   account: AccountsEntity;
 
   @OneToOne(() => TiersEntity, (tier) => tier.user, {

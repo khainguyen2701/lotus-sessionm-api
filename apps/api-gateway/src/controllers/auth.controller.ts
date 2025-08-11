@@ -1,5 +1,6 @@
 import { Public } from '@app/common/decorators/public.decorator';
-import { AuthSignInDTO, AuthSignUpDTO } from '@app/common/dto/ms-auth/auth.dto';
+import { AuthMemberSignUpDTO } from '@app/common/dto/ms-auth/auth-member.dto';
+import { AuthSignInDTO } from '@app/common/dto/ms-auth/auth.dto';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
 import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -19,20 +20,26 @@ export class AuthController {
   @Post('/sign-in')
   signIn(@Body() body: AuthSignInDTO) {
     return this.authClient.send(
-      { cmd: MessagePatternForMicro.AUTH.SIGNIN },
+      { cmd: MessagePatternForMicro.AUTH.MEMBER_SIGNIN },
       { ...body },
     );
   }
 
-  @ApiOperation({ summary: 'User sign up' })
-  @ApiBody({ type: AuthSignUpDTO })
-  @ApiResponse({ status: 201, description: 'User created successfully' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiOperation({ summary: 'Member portal sign up' })
+  @ApiBody({ type: AuthMemberSignUpDTO })
+  @ApiResponse({
+    status: 201,
+    description: 'Member portal created successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
   @Public()
-  @Post('/sign-up')
-  signUp(@Body() body: AuthSignUpDTO) {
+  @Post('/member-portal/sign-up')
+  signUp(@Body() body: AuthMemberSignUpDTO) {
     const data = this.authClient.send(
-      { cmd: MessagePatternForMicro.AUTH.SIGNUP },
+      { cmd: MessagePatternForMicro.AUTH.MEMBER_SIGNUP },
       { ...body },
     );
     return data;

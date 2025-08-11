@@ -35,8 +35,9 @@ export class AccountsEntity {
     name: 'account_phone',
     length: 20,
     unique: true,
+    nullable: true,
   })
-  account_phone: string;
+  account_phone: string | null;
 
   @Column({
     type: 'enum',

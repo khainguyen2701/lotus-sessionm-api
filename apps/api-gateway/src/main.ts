@@ -14,7 +14,7 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: '1',
   });
-  app.useGlobalInterceptors(new ResponseInterceptor());
+  // app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(new RpcToHttpExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
@@ -23,7 +23,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  app.useGlobalInterceptors(new TransformInterceptor());
+  // app.useGlobalInterceptors(new TransformInterceptor());
 
   // Swagger Configuration
   const config = new DocumentBuilder()

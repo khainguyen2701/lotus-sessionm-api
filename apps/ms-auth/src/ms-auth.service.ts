@@ -11,13 +11,15 @@ import { AuthSignInDTO, AuthSignUpDTO } from './dto/auth.dto';
 import { RefreshTokenClassDto } from './dto/token.dto';
 import { AuthRepository } from './repositories/auth.repository';
 import { ExpiredSessionException } from '@app/common/httpCode/http.custom';
+import { AuthMemberSignUpDTO } from '@app/common/dto/ms-auth/auth-member.dto';
+import { AccountsEntity, UsersEntity } from '@app/database';
 
 @Injectable()
 export class MsAuthService {
-  // constructor(
-  //   private authRepo: AuthRepository,
-  //   private jwtService: JwtService,
-  // ) {}
+  constructor(
+    private authRepo: AuthRepository,
+    private jwtService: JwtService,
+  ) {}
   // async signIn(
   //   body: AuthSignInDTO,
   // ): Promise<{ access_token: string; refresh_token: string } | undefined> {
@@ -51,9 +53,22 @@ export class MsAuthService {
   //     throw new UnauthorizedException(message);
   //   }
   // }
-  // async signUp(body: AuthSignUpDTO): Promise<{ id: string }> {
-  //   return await this.authRepo.signUp(body);
-  // }
+  async signUpMemberPortal(body: AuthMemberSignUpDTO): Promise<{
+    user_id: string;
+    account_id: string;
+    user: Partial<UsersEntity>;
+    access_token: string;
+  }> {
+    const user = await this.authRepo.signUpMemberPortal(body);
+    const access_token = await this.jwtService.signAsync(
+      { payload: user },
+      { secret: process.env.SECRET_KEY_JWT, expiresIn: '1m' },
+    );
+    return {
+      ...user,
+      access_token,
+    };
+  }
   // async refreshToken(
   //   body: RefreshTokenClassDto,
   // ): Promise<{ access_token: string; refresh_token: string }> {

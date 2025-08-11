@@ -17,4 +17,12 @@ export default () => ({
       : 10, // Default to 10 if not set
     ca_cert: process.env.DATABASE_CA_CERT || '',
   },
+  auth: {
+    saltRounds: process.env.AUTH_SALT_ROUNDS
+      ? parseInt(process.env.AUTH_SALT_ROUNDS, 10)
+      : 12, // Default to 12 rounds for security
+    jwtSecret: process.env.JWT_SECRET || 'default-secret-key',
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
+    refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
+  },
 });

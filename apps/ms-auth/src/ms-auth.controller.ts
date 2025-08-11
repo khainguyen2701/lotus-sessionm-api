@@ -1,9 +1,9 @@
-import { BadRequestException, Controller } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
-import { AuthSignInDTO, AuthSignUpDTO } from './dto/auth.dto';
-import { MsAuthService } from './ms-auth.service';
-import { RefreshTokenClassDto } from './dto/token.dto';
+import { AuthMemberSignUpDTO } from '@app/common/dto/ms-auth/auth-member.dto';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
+import { AccountsEntity, UsersEntity } from '@app/database';
+import { Controller } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
+import { MsAuthService } from './ms-auth.service';
 @Controller()
 export class MsAuthController {
   constructor(private readonly msAuthService: MsAuthService) {}
@@ -16,11 +16,16 @@ export class MsAuthController {
   //   return data;
   // }
 
-  // @MessagePattern({ cmd: 'auth.sign-up' })
-  // async signUp(body: AuthSignUpDTO): Promise<{ id: string }> {
-  //   const data = await this.msAuthService.signUp(body);
-  //   return data;
-  // }
+  @MessagePattern({ cmd: MessagePatternForMicro.AUTH.MEMBER_SIGNUP })
+  async signUp(body: AuthMemberSignUpDTO): Promise<{
+    user_id: string;
+    account_id: string;
+    access_token: string;
+    user: Partial<UsersEntity>;
+  }> {
+    const data = await this.msAuthService.signUpMemberPortal(body);
+    return data;
+  }
 
   // @MessagePattern({ cmd: MessagePatternForMicro.AUTH.REFRESH_TOKEN })
   // async refreshToken(

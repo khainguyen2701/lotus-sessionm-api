@@ -7,13 +7,13 @@ export default function createTypeOrmPgFactory(
 ): TypeOrmModuleOptions {
   const dbConfig = {
     type: 'postgres' as const,
-    host: config.get('database.host'),
+    host: config.get<string>('database.host'),
     port: config.get<number>('database.port'),
-    username: config.get('database.username'),
-    password: config.get('database.password'),
-    database: config.get('database.database'),
+    username: config.get<string>('database.username'),
+    password: config.get<string>('database.password'),
+    database: config.get<string>('database.database'),
     autoLoadEntities: true,
-    synchronize: config.get('database.synchronize'),
+    synchronize: config.get<boolean>('database.synchronize'),
     ssl: true,
     extra: {
       ssl: {
