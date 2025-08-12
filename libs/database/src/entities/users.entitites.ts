@@ -126,4 +126,83 @@ export class UsersEntity {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Column({
+    type: 'varchar',
+    name: 'first_name',
+    length: 100,
+    nullable: true,
+  })
+  first_name: string;
+
+  @Column({
+    type: 'varchar',
+    name: 'last_name',
+    length: 100,
+    nullable: true,
+  })
+  last_name: string;
+
+  @Column({
+    type: 'enum',
+    name: 'gender',
+    enum: ['m', 'f'],
+    default: 'm',
+  })
+  gender: string;
+
+  @Column({
+    type: 'date',
+    name: 'dob',
+    nullable: true,
+  })
+  dob: Date;
+
+  @Column({
+    type: 'varchar',
+    name: 'address',
+    length: 100,
+    nullable: true,
+  })
+  address: string;
+
+  @Column({
+    type: 'varchar',
+    name: 'city',
+    length: 100,
+    nullable: true,
+  })
+  city: string;
+
+  @Column({
+    type: 'varchar',
+    name: 'state',
+    length: 100,
+    nullable: true,
+  })
+  state: string;
+
+  @Column({
+    type: 'varchar',
+    name: 'zip',
+    length: 100,
+    nullable: true,
+  })
+  zip: string;
+
+  @Column({
+    type: 'varchar',
+    name: 'country',
+    length: 100,
+    nullable: true,
+  })
+  country: string;
+
+  @Column({
+    type: 'varchar',
+    name: 'phone_numbers',
+    length: 20,
+    nullable: true,
+  })
+  phone_numbers: string;
 }

@@ -1,4 +1,7 @@
-import { AuthMemberSignUpDTO } from '@app/common/dto/ms-auth/auth-member.dto';
+import {
+  AuthAdminSignUpDTO,
+  AuthMemberSignUpDTO,
+} from '@app/common/dto/ms-auth/auth-member.dto';
 import {
   DatabaseTransactionException,
   UserNotFoundException,
@@ -9,6 +12,11 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare, hash } from 'bcrypt';
 import { DataSource, Repository } from 'typeorm';
+import {
+  BodyCreateProfileSessionM,
+  ResponseCreateProfileSessionM,
+} from '../type/sessionM.type';
+import { HttpClientService } from '@app/common';
 
 @Injectable()
 export class AuthRepository {
@@ -22,6 +30,7 @@ export class AuthRepository {
     private accountEntities: Repository<AccountsEntity>,
     private dataSource: DataSource,
     private configService: ConfigService,
+    private httpClientService: HttpClientService,
   ) {
     this.saltRounds = this.configService.get<number>('auth.saltRounds', 12);
   }
@@ -48,6 +57,24 @@ export class AuthRepository {
     return emailRegex.test(email);
   }
 
+  private async createProfileOnSessionM(
+    body: BodyCreateProfileSessionM,
+  ): Promise<ResponseCreateProfileSessionM | null> {
+    try {
+      const response =
+        await this.httpClientService.post<ResponseCreateProfileSessionM>(
+          `/priv/v1/apps/${this.configService.get('sessionM.appKey')}/users`,
+          body,
+        );
+
+      console.log('response', response);
+      return response.data;
+    } catch (error) {
+      console.log('error', error);
+      return null;
+    }
+  }
+
   /**
    * Register a new user with associated account
    * @param body - User registration data
@@ -60,11 +87,39 @@ export class AuthRepository {
     account_id: string;
     user: Partial<UsersEntity>;
   }> {
-    const { password, email } = body;
+    const {
+      password,
+      email,
+      first_name,
+      last_name,
+      address,
+      city,
+      country,
+      dob,
+      gender,
+      phone_numbers,
+      state,
+      zip,
+    } = body;
 
     // Validate input
-    if (!email || !password) {
-      throw new Error('Missing required fields: email, password');
+    if (
+      !email ||
+      !password ||
+      !first_name ||
+      !last_name ||
+      !address ||
+      !city ||
+      !country ||
+      !dob ||
+      !gender ||
+      !phone_numbers ||
+      !state ||
+      !zip
+    ) {
+      throw new Error(
+        'Missing required fields: email, password, first_name, last_name, address, city, country, dob, gender, phone_numbers, state, zip',
+      );
     }
 
     // Validate email format
@@ -98,7 +153,7 @@ export class AuthRepository {
         password: hashedPassword,
         account_name: username,
         status: 'active',
-        account_phone: null, // Set to null to avoid unique constraint violation
+        account_phone: phone_numbers, // Set to null to avoid unique constraint violation
       });
 
       // Create user with reference to account
@@ -107,7 +162,50 @@ export class AuthRepository {
         user_name: username,
         user_type: 'user', // Set as 'user' since enum only has 'user' and 'admin'
         account: account,
+        first_name: first_name,
+        last_name: last_name,
+        address: address,
+        city: city,
+        country: country,
+        dob: dob,
+        gender: gender,
+        phone_numbers: phone_numbers,
+        state: state,
+        zip: zip,
       });
+
+      // Create profile on SessionM
+      const profileSessionM = await this.createProfileOnSessionM({
+        user: {
+          external_id: user.id,
+          first_name: first_name,
+          last_name: last_name,
+          email: email,
+          phone_numbers: [
+            {
+              phone_type: 'mobile',
+              phone_number: user.phone_numbers,
+              preference_flags: ['primary'],
+            },
+          ],
+          opted_in: 'true',
+          external_id_type: 'user_id',
+          gender: gender,
+          dob: dob,
+          address: address,
+          city: city,
+          state: state,
+          zip: zip,
+          country: country,
+          user_profile: {
+            partner: ['root'],
+          },
+        },
+      });
+
+      if (!profileSessionM) {
+        throw new Error('Failed to create profile on SessionM');
+      }
 
       await queryRunner.commitTransaction();
 
@@ -134,7 +232,86 @@ export class AuthRepository {
         `User registration failed for email: ${email}`,
         error.stack,
       );
-      throw new DatabaseTransactionException('Failed to create user account');
+      throw new DatabaseTransactionException(
+        error?.message ?? 'Failed to create user account',
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async signUpAdminPortal(body: AuthAdminSignUpDTO): Promise<{
+    user_id: string;
+    account_id: string;
+    user: Partial<UsersEntity>;
+  }> {
+    const { password, email } = body;
+
+    // Validate input
+    if (!email || !password) {
+      throw new Error('Missing required fields: email, password');
+    }
+    // Validate email format
+    if (!this.isValidEmail(email)) {
+      throw new Error('Invalid email format');
+    }
+    // Check if email already exists in accounts
+    const existingAccount = await this.checkEmailExists(email);
+    if (existingAccount) {
+      this.logger.warn(`Attempt to register with existing email: ${email}`);
+      throw new Error('Email already exists');
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Extract username from email
+      const username = this.extractUsernameFromEmail(email);
+
+      // Hash password with configurable salt rounds
+      const hashedPassword = await hash(password, this.saltRounds);
+
+      // Create account first
+      const account = await queryRunner.manager.save(AccountsEntity, {
+        account_email: email.toLowerCase().trim(),
+        password: hashedPassword,
+        account_name: username,
+        status: 'active',
+        account_phone: null, // Set to null to avoid unique constraint violation
+      });
+
+      // Create user with reference to account
+      const user = await queryRunner.manager.save(UsersEntity, {
+        user_email: email.toLowerCase().trim(),
+        user_name: username,
+        user_type: 'admin', // Set as 'admin' since enum only has 'user' and 'admin'
+        account: account,
+      });
+
+      await queryRunner.commitTransaction();
+
+      return {
+        user_id: user.id,
+        account_id: account.id,
+        user: {
+          id: user.id,
+          user_name: user.user_name,
+          user_email: user.user_email,
+          user_type: user.user_type,
+          created_at: user.created_at,
+        },
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error(
+        `User registration failed for email: ${email}`,
+        error.stack,
+      );
+      throw new DatabaseTransactionException(
+        error?.message ?? 'Failed to create user account',
+      );
     } finally {
       await queryRunner.release();
     }
@@ -195,7 +372,10 @@ export class AuthRepository {
     }
   }
 
-  async findAccountByEmail(email: string): Promise<AccountsEntity | null> {
+  async findAccountByEmailAndUserType(
+    email: string,
+    userType: 'user' | 'admin',
+  ): Promise<AccountsEntity | null> {
     if (!email) {
       throw new Error('Email is required');
     }
@@ -206,17 +386,28 @@ export class AuthRepository {
         relations: ['user'],
       });
 
+      if (!account) {
+        throw new Error(`Account not found with email: ${email}`);
+      }
+
       this.logger.debug(
         `Account lookup for email: ${email} - ${account ? 'Found' : 'Not found'}`,
       );
-
+      if (account.user?.user_type !== userType) {
+        this.logger.debug(
+          `Account type mismatch for email: ${email} - Expected: ${userType}, Found: ${account.user?.user_type}`,
+        );
+        throw new Error(
+          `Account type mismatch for email: ${email} - Expected: ${userType}, Found: ${account.user?.user_type}`,
+        );
+      }
       return account;
     } catch (error) {
       this.logger.error(
         `Error finding account by email: ${email}`,
         error.stack,
       );
-      throw new DatabaseTransactionException('Failed to find account');
+      throw new Error(error?.message ?? 'Failed to find account');
     }
   }
 

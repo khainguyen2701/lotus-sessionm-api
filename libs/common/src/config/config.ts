@@ -25,4 +25,10 @@ export default () => ({
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
     refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
   },
+  //SESSIONM
+  sessionm: {
+    apiKey: process.env.SESSIONM_API_KEY || 'default-api-key',
+    endpoint: process.env.SESSIONM_ENDPOINT || 'default-endpoint',
+    secretKey: process.env.SESSIONM_SECRET_KEY || 'default-secret-key',
+  },
 });

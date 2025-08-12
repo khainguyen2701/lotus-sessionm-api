@@ -1,5 +1,6 @@
 import { Public } from '@app/common/decorators/public.decorator';
 import {
+  AuthAdminSignUpDTO,
   AuthMemberSignInDTO,
   AuthMemberSignUpDTO,
 } from '@app/common/dto/ms-auth/auth-member.dto';
@@ -35,7 +36,7 @@ export class AuthController {
   })
   @Public()
   @Post('/member-portal/sign-in')
-  signIn(@Body() body: AuthMemberSignInDTO) {
+  signInMemberPortal(@Body() body: AuthMemberSignInDTO) {
     return this.authClient.send(
       { cmd: MessagePatternForMicro.AUTH.MEMBER_SIGNIN },
       { ...body },
@@ -57,9 +58,56 @@ export class AuthController {
   })
   @Public()
   @Post('/member-portal/sign-up')
-  signUp(@Body() body: AuthMemberSignUpDTO) {
+  signUpMemberPortal(@Body() body: AuthMemberSignUpDTO) {
     const data = this.authClient.send(
       { cmd: MessagePatternForMicro.AUTH.MEMBER_SIGNUP },
+      { ...body },
+    );
+    return data;
+  }
+
+  //ADMIN PORTAL
+  //Sign up admin portal
+  @ApiOperation({ summary: 'Admin portal sign up' })
+  @ApiBody({ type: AuthAdminSignUpDTO })
+  @ApiResponse({
+    status: 201,
+    description: 'Admin portal created successfully',
+    schema: AuthMemberSignInSchemaSuccess,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Bad request',
+    schema: AuthMemberSignInSchemaError,
+  })
+  @Public()
+  @Post('/admin-portal/sign-up')
+  signUpAdminPortal(@Body() body: AuthAdminSignUpDTO) {
+    const data = this.authClient.send(
+      { cmd: MessagePatternForMicro.AUTH.ADMIN_SIGNUP },
+      { ...body },
+    );
+    return data;
+  }
+
+  //Sign in admin portal
+  @ApiOperation({ summary: 'Admin portal sign in' })
+  @ApiBody({ type: AuthMemberSignInDTO })
+  @ApiResponse({
+    status: 200,
+    description: 'Admin portal sign in successful',
+    schema: AuthMemberSignInSchemaSuccess,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Bad request',
+    schema: AuthMemberSignInSchemaError,
+  })
+  @Public()
+  @Post('/admin-portal/sign-in')
+  signInAdminPortal(@Body() body: AuthMemberSignInDTO) {
+    const data = this.authClient.send(
+      { cmd: MessagePatternForMicro.AUTH.ADMIN_SIGNIN },
       { ...body },
     );
     return data;

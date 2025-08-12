@@ -1,4 +1,5 @@
 import {
+  AuthAdminSignUpDTO,
   AuthMemberSignInDTO,
   AuthMemberSignUpDTO,
 } from '@app/common/dto/ms-auth/auth-member.dto';
@@ -12,23 +13,45 @@ export class MsAuthController {
   constructor(private readonly msAuthService: MsAuthService) {}
 
   @MessagePattern({ cmd: MessagePatternForMicro.AUTH.MEMBER_SIGNIN })
-  async signIn(
+  async signInMemberPortal(
     body: AuthMemberSignInDTO,
   ): Promise<
     { access_token: string; user_id: string; refresh_token: string } | undefined
   > {
-    const data = await this.msAuthService.signIn(body);
+    const data = await this.msAuthService.signInMemberPortal(body);
     return data;
   }
 
   @MessagePattern({ cmd: MessagePatternForMicro.AUTH.MEMBER_SIGNUP })
-  async signUp(body: AuthMemberSignUpDTO): Promise<{
+  async signUpMemberPortal(body: AuthMemberSignUpDTO): Promise<{
     user_id: string;
     account_id: string;
     access_token: string;
     user: Partial<UsersEntity>;
   }> {
     const data = await this.msAuthService.signUpMemberPortal(body);
+    return data;
+  }
+
+  //Admin portal
+  @MessagePattern({ cmd: MessagePatternForMicro.AUTH.ADMIN_SIGNUP })
+  async signUpAdminPortal(body: AuthAdminSignUpDTO): Promise<{
+    user_id: string;
+    account_id: string;
+    access_token: string;
+    user: Partial<UsersEntity>;
+  }> {
+    const data = await this.msAuthService.signUpAdminPortal(body);
+    return data;
+  }
+
+  @MessagePattern({ cmd: MessagePatternForMicro.AUTH.ADMIN_SIGNIN })
+  async signInAdminPortal(
+    body: AuthMemberSignInDTO,
+  ): Promise<
+    { access_token: string; user_id: string; refresh_token: string } | undefined
+  > {
+    const data = await this.msAuthService.signInAdminPortal(body);
     return data;
   }
 

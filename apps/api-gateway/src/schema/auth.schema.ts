@@ -1,3 +1,4 @@
+//Member portal
 export const AuthMemberSignUpSchemaCreated = {
   type: 'object',
   properties: {
@@ -133,3 +134,5 @@ export const AuthMemberSignInSchemaSuccess = {
     },
   },
 };
+
+// Admin portal

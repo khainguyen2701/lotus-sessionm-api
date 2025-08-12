@@ -7,6 +7,7 @@ import { MsAuthService } from './ms-auth.service';
 import { AuthRepository } from './repositories/auth.repository';
 import { DatabaseModule } from '@app/database';
 import * as entities from '@app/database/entities';
+import { CommonModule, HttpClientService } from '@app/common';
 
 @Module({
   imports: [
@@ -15,8 +16,9 @@ import * as entities from '@app/database/entities';
     }),
     DatabaseModule,
     TypeOrmModule.forFeature(Object.values(entities)),
+    CommonModule,
   ],
-  controllers: [MsAuthController],
-  providers: [MsAuthService, AuthRepository, JwtService],
+  controllers: [MsAuthController, HttpClientService],
+  providers: [MsAuthService, AuthRepository, JwtService, HttpClientService],
 })
 export class MsAuthModule {}

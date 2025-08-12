@@ -1,7 +1,10 @@
 export const MessagePatternForMicro = {
+  // Auth
   AUTH: {
     MEMBER_SIGNIN: 'auth.member_sign-in',
     MEMBER_SIGNUP: 'auth.member_sign-up',
+    ADMIN_SIGNUP: 'auth.admin_sign-up',
+    ADMIN_SIGNIN: 'auth.admin_sign-in',
     REFRESH_TOKEN: 'auth.refresh_token',
   },
   USER: {
