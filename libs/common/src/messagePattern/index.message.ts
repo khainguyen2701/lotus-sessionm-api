@@ -10,6 +10,8 @@ export const MessagePatternForMicro = {
   USER: {
     GET_ALL: 'user.get_users',
     GET_DETAIL: 'user.get_user_by_id',
+    MEMBER_PROFILE: 'user.member_profile',
+    ADMIN_PROFILE: 'user.admin_profile',
   },
   REWARDS: {
     GET_ALL: 'rewards.get_rewards',

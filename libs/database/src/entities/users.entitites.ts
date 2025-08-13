@@ -57,6 +57,7 @@ export class UsersEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
+  @JoinColumn({ name: 'tier_id' })
   tier: TiersEntity;
 
   @OneToMany(
@@ -69,12 +70,14 @@ export class UsersEntity {
       onUpdate: 'CASCADE',
     },
   )
+  @JoinColumn({ name: 'point_transaction_id' })
   point_transactions: PointTransactionsEntity[];
 
   @OneToMany(() => RedemtionsEntity, (redemption) => redemption.user, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
+  @JoinColumn({ name: 'redemption_id' })
   redemtions: RedemtionsEntity[];
 
   @OneToOne(
@@ -87,6 +90,7 @@ export class UsersEntity {
       cascade: true,
     },
   )
+  @JoinColumn({ name: 'sessionm_account_id' })
   sessionm_account: SessionmAccountsEntity;
 
   @OneToMany(() => SyncLogEntity, (syncLog) => syncLog.user, {
@@ -95,6 +99,7 @@ export class UsersEntity {
     nullable: true,
     cascade: true,
   })
+  @JoinColumn({ name: 'sync_log_id' })
   sync_logs: SyncLogEntity[];
 
   @OneToMany(
@@ -107,6 +112,7 @@ export class UsersEntity {
       cascade: true,
     },
   )
+  @JoinColumn({ name: 'manual_points_request_id' })
   manual_points_requests: ManualPointsRequestEntity[];
 
   @OneToMany(
@@ -119,6 +125,7 @@ export class UsersEntity {
       cascade: true,
     },
   )
+  @JoinColumn({ name: 'process_by' })
   manual_points_requests_process_by: ManualPointsRequestEntity[];
 
   @CreateDateColumn()

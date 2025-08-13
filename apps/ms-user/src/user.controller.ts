@@ -1,18 +1,30 @@
-import { Controller } from '@nestjs/common';
+import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
+import { BadRequestException, Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
+import { MemberProfileDto } from './dto/member-profile.dto';
 import { UserService } from './user.service';
 
 @Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @MessagePattern({ cmd: 'user.get_users' })
-  // async getUsers(): Promise<{ data: UserEntity[]; totalItems: number } | null> {
-  //   return await this.userService.findAll();
-  // }
+  // get member profile
+  @MessagePattern({ cmd: MessagePatternForMicro.USER.MEMBER_PROFILE })
+  async memberProfile(data: MemberProfileDto) {
+    try {
+      return await this.userService.memberProfile(data.userId);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
 
-  // @MessagePattern({ cmd: 'get_user_by_id' })
-  // getUserById(data: { id: string }): string {
-  //   return `User with ID: ${data.id}`;
-  // }
+  // get admin profile
+  @MessagePattern({ cmd: MessagePatternForMicro.USER.ADMIN_PROFILE })
+  async adminProfile(data: MemberProfileDto) {
+    try {
+      return await this.userService.adminProfile(data.userId);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
 }

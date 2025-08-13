@@ -5,6 +5,7 @@ import {
   MinLength,
   IsDateString,
   IsPhoneNumber,
+  IsEmail,
 } from 'class-validator';
 
 export class AuthMemberDto {
@@ -13,14 +14,17 @@ export class AuthMemberDto {
 }
 
 export class AuthMemberSignUpDTO {
+  //email
   @ApiProperty({
     description: 'email for the member account',
     example: 'john_doe@example.com',
   })
   @IsString()
   @IsNotEmpty()
+  @IsEmail()
   email: string;
 
+  //password
   @ApiProperty({
     description: 'Password for the member account',
     example: 'password123',
@@ -30,15 +34,6 @@ export class AuthMemberSignUpDTO {
   @IsNotEmpty()
   @MinLength(6)
   password: string;
-
-  @ApiProperty({
-    description: 'Confirm password for the member account',
-    example: 'password123',
-  })
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(6)
-  confirm_password: string;
 
   @ApiProperty({
     description: 'First name for login',

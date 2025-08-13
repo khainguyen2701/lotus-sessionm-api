@@ -40,13 +40,11 @@ export class RoleBaseAccessControlGuard implements CanActivate {
       user = data?.user ?? {};
     }
 
-    const hasRole = requireRoles.includes(user?.role as RoleBaseAccessControl);
+    const hasRole = requireRoles.includes(
+      user?.payload?.user_type as RoleBaseAccessControl,
+    );
     if (!hasRole) {
-      throw new ForbiddenException({
-        statusCode: 403,
-        message: 'You do not have access',
-        error: 'FORBIDDEN',
-      });
+      throw new ForbiddenException('You do not have access');
     }
     return true;
   }

@@ -135,7 +135,7 @@ export class AuthRepository {
     }
 
     // Extract username from email
-    const username = this.extractUsernameFromEmail(email);
+    const username = first_name + last_name;
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
