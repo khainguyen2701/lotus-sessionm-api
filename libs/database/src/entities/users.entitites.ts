@@ -9,12 +9,11 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { AccountsEntity } from './accounts.entities';
-import { TiersEntity } from './tiers.entities';
+import { ManualPointsRequestEntity } from './manual_points_request.entities';
 import { PointTransactionsEntity } from './point_transactions.entities';
-import { RedemtionsEntity } from './redemtions.entities';
 import { SessionmAccountsEntity } from './sessionm_accounts.entities';
 import { SyncLogEntity } from './sync_log.entities';
-import { ManualPointsRequestEntity } from './manual_points_request.entities';
+import { TiersEntity } from './tiers.entities';
 
 @Entity('users')
 export class UsersEntity {
@@ -72,13 +71,6 @@ export class UsersEntity {
   )
   @JoinColumn({ name: 'point_transaction_id' })
   point_transactions: PointTransactionsEntity[];
-
-  @OneToMany(() => RedemtionsEntity, (redemption) => redemption.user, {
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE',
-  })
-  @JoinColumn({ name: 'redemption_id' })
-  redemtions: RedemtionsEntity[];
 
   @OneToOne(
     () => SessionmAccountsEntity,

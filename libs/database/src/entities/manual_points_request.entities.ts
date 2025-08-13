@@ -3,11 +3,9 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UsersEntity } from './users.entitites';
-import { RequestAttachmentsEntity } from './request_attachments.entities';
 
 @Entity('manual_points_request')
 export class ManualPointsRequestEntity {
@@ -16,17 +14,17 @@ export class ManualPointsRequestEntity {
 
   @Column({
     type: 'enum',
-    enum: ['points', 'discount'],
-    default: 'points',
+    enum: ['flight', 'purchase'],
+    default: 'flight',
   })
-  request_type: 'points' | 'discount';
+  request_type: 'flight' | 'purchase' | 'other';
 
   @Column({
     type: 'enum',
-    enum: ['waiting', 'approved', 'rejected'],
-    default: 'waiting',
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
   })
-  request_status: 'waiting' | 'approved' | 'rejected';
+  request_status: 'pending' | 'approved' | 'rejected';
 
   @Column({
     type: 'int',
@@ -65,21 +63,75 @@ export class ManualPointsRequestEntity {
   @JoinColumn({ name: 'process_by' })
   process_by: UsersEntity;
 
-  @OneToMany(
-    () => RequestAttachmentsEntity,
-    (attachment) => attachment.request,
-    {
-      cascade: true,
-      nullable: true,
-      onDelete: 'SET NULL',
-      onUpdate: 'CASCADE',
-    },
-  )
-  attachments: RequestAttachmentsEntity[];
+  @Column({
+    type: 'text',
+    default: '',
+  })
+  file_name: string;
+
+  @Column({
+    type: 'text',
+    default: '',
+  })
+  file_url: string;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  uploaded_at: Date;
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
   process_at: Date;
+
+  @Column({
+    type: 'text',
+    default: '',
+  })
+  seat_code: string;
+
+  @Column({
+    type: 'text',
+    default: '',
+  })
+  seat_class: string;
+
+  @Column({
+    type: 'text',
+    default: '',
+  })
+  ticket_number: string;
+
+  @Column({
+    type: 'text',
+    default: '',
+  })
+  flight_code: string;
+
+  @Column({
+    type: 'text',
+    default: '',
+  })
+  flight_router_from: string;
+
+  @Column({
+    type: 'text',
+    default: '',
+  })
+  flight_router_to: string;
+
+  @Column({
+    type: 'date',
+    default: null,
+  })
+  flight_date: Date;
+
+  @Column({
+    type: 'bigint',
+    default: 0,
+  })
+  distance: number;
 }

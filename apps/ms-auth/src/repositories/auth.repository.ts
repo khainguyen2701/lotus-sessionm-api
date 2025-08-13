@@ -376,10 +376,6 @@ export class AuthRepository {
     email: string,
     userType: 'user' | 'admin',
   ): Promise<AccountsEntity | null> {
-    if (!email) {
-      throw new Error('Email is required');
-    }
-
     try {
       const account = await this.accountEntities.findOne({
         where: { account_email: email.toLowerCase().trim() },

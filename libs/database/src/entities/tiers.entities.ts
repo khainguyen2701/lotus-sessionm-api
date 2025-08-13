@@ -1,4 +1,10 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { UsersEntity } from './users.entitites';
 
 @Entity('tiers')
@@ -22,27 +28,7 @@ export class TiersEntity {
   })
   tier_description: string;
 
-  @Column({
-    type: 'int',
-    name: 'tier_price',
-    default: 0,
-  })
-  tier_price: number;
-
-  @Column({
-    type: 'int',
-    name: 'tier_duration',
-    default: 0,
-  })
-  tier_duration: number;
-
-  @Column({
-    type: 'int',
-    name: 'tier_max_user',
-    default: 0,
-  })
-  tier_max_user: number;
-
   @OneToOne(() => UsersEntity, (user) => user.tier)
+  @JoinColumn({ name: 'user_id' })
   user: UsersEntity;
 }

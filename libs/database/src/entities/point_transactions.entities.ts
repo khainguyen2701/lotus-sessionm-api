@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -17,7 +18,7 @@ export class PointTransactionsEntity {
     type: 'enum',
     enum: ['earn', 'spend'],
   })
-  transaction_type: 'earn' | 'spend';
+  transaction_type: 'earn' | 'spend' | 'other';
 
   @Column({
     type: 'int',
@@ -54,5 +55,14 @@ export class PointTransactionsEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
+  @JoinColumn({ name: 'user_id' })
   user: UsersEntity;
+
+  @Column({
+    type: 'enum',
+    enum: ['rejected', 'pending', 'processed'],
+    default: 'pending',
+    nullable: true,
+  })
+  status: 'rejected' | 'pending' | 'processed';
 }
