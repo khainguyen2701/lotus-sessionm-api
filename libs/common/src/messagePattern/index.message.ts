@@ -12,6 +12,7 @@ export const MessagePatternForMicro = {
     GET_DETAIL: 'user.get_user_by_id',
     MEMBER_PROFILE: 'user.member_profile',
     ADMIN_PROFILE: 'user.admin_profile',
+    UPLOAD_FILE: 'user.upload_file',
   },
   REWARDS: {
     GET_ALL: 'rewards.get_rewards',

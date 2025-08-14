@@ -1,3 +1,4 @@
+import { HttpClientService } from '@app/common';
 import {
   AuthAdminSignUpDTO,
   AuthMemberSignUpDTO,
@@ -10,13 +11,12 @@ import { AccountsEntity, UsersEntity } from '@app/database';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { compare, hash } from 'bcrypt';
+import { hash } from 'bcrypt';
 import { DataSource, Repository } from 'typeorm';
 import {
   BodyCreateProfileSessionM,
   ResponseCreateProfileSessionM,
 } from '../type/sessionM.type';
-import { HttpClientService } from '@app/common';
 
 @Injectable()
 export class AuthRepository {
@@ -510,64 +510,64 @@ export class AuthRepository {
    * @param password - Plain text password
    * @returns User entity without password or null
    */
-  async verifyCredentials(
-    email: string,
-    password: string,
-  ): Promise<Omit<UsersEntity, 'password'> | null> {
-    if (!email || !password) {
-      throw new Error('Email and password are required');
-    }
+  // async verifyCredentials(
+  //   email: string,
+  //   password: string,
+  // ): Promise<Omit<UsersEntity, 'password'> | null> {
+  //   if (!email || !password) {
+  //     throw new Error('Email and password are required');
+  //   }
 
-    try {
-      // Find user with account for password comparison
-      const user = await this.findUserByEmail(email);
-      if (!user || !user.account) {
-        this.logger.debug(`Login attempt with non-existent email: ${email}`);
-        return null;
-      }
+  //   try {
+  //     // Find user with account for password comparison
+  //     const user = await this.findUserByEmail(email);
+  //     if (!user || !user.account) {
+  //       this.logger.debug(`Login attempt with non-existent email: ${email}`);
+  //       return null;
+  //     }
 
-      // Compare password with account password
-      const isPasswordValid = await compare(password, user.account.password);
-      if (!isPasswordValid) {
-        this.logger.warn(`Invalid password attempt for email: ${email}`);
-        return null;
-      }
+  //     // Compare password with account password
+  //     const isPasswordValid = await compare(password, user.account.password);
+  //     if (!isPasswordValid) {
+  //       this.logger.warn(`Invalid password attempt for email: ${email}`);
+  //       return null;
+  //     }
 
-      this.logger.log(`Successful login for email: ${email}`);
+  //     this.logger.log(`Successful login for email: ${email}`);
 
-      // Return user without account password for security
-      return {
-        id: user.id,
-        user_name: user.user_name,
-        user_email: user.user_email,
-        user_type: user.user_type,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-        tier: user.tier,
-        point_transactions: user.point_transactions,
-        redemtions: user.redemtions,
-        sessionm_account: user.sessionm_account,
-        sync_logs: user.sync_logs,
-        manual_points_requests: user.manual_points_requests,
-        account: user.account
-          ? {
-              id: user.account.id,
-              account_name: user.account.account_name,
-              account_email: user.account.account_email,
-              status: user.account.status,
-              created_at: user.account.created_at,
-              updated_at: user.account.updated_at,
-            }
-          : undefined,
-      } as Omit<UsersEntity, 'password'>;
-    } catch (error) {
-      this.logger.error(
-        `Error verifying credentials for email: ${email}`,
-        error.stack,
-      );
-      throw new DatabaseTransactionException('Failed to verify credentials');
-    }
-  }
+  //     // Return user without account password for security
+  //     return {
+  //       id: user.id,
+  //       user_name: user.user_name,
+  //       user_email: user.user_email,
+  //       user_type: user.user_type,
+  //       created_at: user.created_at,
+  //       updated_at: user.updated_at,
+  //       tier: user.tier,
+  //       point_transactions: user.point_transactions,
+  //       redemtions: user.redemtions,
+  //       sessionm_account: user.sessionm_account,
+  //       sync_logs: user.sync_logs,
+  //       manual_points_requests: user.manual_points_requests,
+  //       account: user.account
+  //         ? {
+  //             id: user.account.id,
+  //             account_name: user.account.account_name,
+  //             account_email: user.account.account_email,
+  //             status: user.account.status,
+  //             created_at: user.account.created_at,
+  //             updated_at: user.account.updated_at,
+  //           }
+  //         : undefined,
+  //     } as Omit<UsersEntity, 'password'>;
+  //   } catch (error) {
+  //     this.logger.error(
+  //       `Error verifying credentials for email: ${email}`,
+  //       error.stack,
+  //     );
+  //     throw new DatabaseTransactionException('Failed to verify credentials');
+  //   }
+  // }
 
   /**
    * Get user with account information

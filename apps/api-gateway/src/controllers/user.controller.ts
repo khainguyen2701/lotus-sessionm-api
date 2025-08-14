@@ -1,16 +1,34 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { RoleBaseAccessControl } from '@app/common/constant/index.constant';
 import { Roles } from '@app/common/decorators/role.decorator';
 import { UserIdDecorator } from '@app/common/decorators/userId.decorators';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
-import { Controller, Get, Inject } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiHeader,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { FileUploadDto, FileUploadResponseDto } from '../dto/file-upload.dto';
+import {
+  UploadFileSchema,
+  UploadFileSchemaResponse,
+} from '../schema/upload.chema';
 import {
   UserGetProfileSchemaError,
   UserGetProfileSchemaSuccess,
@@ -121,5 +139,94 @@ export class UsersController {
       },
       { userId },
     );
+  }
+
+  // Upload file
+  @ApiOperation({ summary: 'Upload file (PDF, DOC, DOCX, Images)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({
+    status: 200,
+    description: 'File uploaded successfully',
+    type: FileUploadResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid file type or missing file',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  @ApiHeader({
+    name: 'x-user-id',
+    description: 'User ID (UUID format)',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token',
+    required: true,
+  })
+  @Post('/upload-file')
+  @Roles(RoleBaseAccessControl.User)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+      },
+      fileFilter: (req, file, callback) => {
+        const allowedTypes = [
+          '.pdf',
+          '.doc',
+          '.docx',
+          '.jpg',
+          '.jpeg',
+          '.png',
+          '.gif',
+          '.bmp',
+          '.webp',
+        ];
+        const fileExtension = file.originalname
+          .toLowerCase()
+          .substring(file.originalname.lastIndexOf('.'));
+
+        if (!allowedTypes.includes(fileExtension)) {
+          return callback(
+            new Error(
+              'Only PDF, DOC, DOCX, and image files (JPG, JPEG, PNG, GIF, BMP, WEBP) are allowed',
+            ),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  uploadFile(
+    @UserIdDecorator() userId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: FileUploadDto,
+  ): any {
+    // Validate file exists
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
+
+    // File type và size validation đã được xử lý bởi multer
+    const response = this.userClient.send(
+      {
+        cmd: MessagePatternForMicro.USER.UPLOAD_FILE,
+      },
+      {
+        file: file?.buffer,
+        fileName: file?.originalname,
+        folder: body.folder || 'assets',
+      },
+    );
+    return response;
   }
 }

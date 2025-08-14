@@ -31,4 +31,14 @@ export default () => ({
     endpoint: process.env.SESSIONM_ENDPOINT || 'default-endpoint',
     secretKey: process.env.SESSIONM_SECRET_KEY || 'default-secret-key',
   },
+  // Github
+  github: {
+    token: process.env.GITHUB_TOKEN || 'default-token',
+    owner: process.env.GITHUB_OWNER || 'default-owner',
+    repo: process.env.GITHUB_REPO || 'default-repo',
+  },
+  // Assets
+  assets: {
+    url: process.env.ASSETS_URL || 'default-url',
+  },
 });

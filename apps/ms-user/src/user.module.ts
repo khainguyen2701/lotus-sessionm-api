@@ -5,6 +5,7 @@ import { UserRepository } from './repositories/user.repository';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { DatabaseModule } from '@app/database';
+import { GitHubService } from '@app/common';
 import * as entities from '@app/database/entities';
 
 @Module({
@@ -16,6 +17,6 @@ import * as entities from '@app/database/entities';
     TypeOrmModule.forFeature(Object.values(entities)),
   ],
   controllers: [UserController],
-  providers: [UserService, UserRepository],
+  providers: [UserService, UserRepository, GitHubService],
 })
 export class UserModule {}
