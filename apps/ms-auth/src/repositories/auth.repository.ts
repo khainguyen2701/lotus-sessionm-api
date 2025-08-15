@@ -144,10 +144,10 @@ export class AuthRepository {
         account_phone: phone_numbers, // Set to null to avoid unique constraint violation
       });
 
-      // Find bronze tier to assign to new user
-      const bronzeTier = await queryRunner.manager.findOne(TiersEntity, {
-        where: { tier_name: 'silver' },
-      });
+      // // Find bronze tier to assign to new user
+      // const bronzeTier = await queryRunner.manager.findOne(TiersEntity, {
+      //   where: { tier_name: 'bronze' },
+      // });
 
       // Create points record first (without user reference)
       const pointsEntity = queryRunner.manager.create(PointsEntity, {
@@ -170,7 +170,7 @@ export class AuthRepository {
         user_number: userNumber,
         user_type: 'user', // Set as 'user' since enum only has 'user' and 'admin'
         account: account,
-        tier: bronzeTier ?? {}, // Assign bronze tier to new user
+        tier: {}, // Assign bronze tier to new user
         points: points, // Assign points to new user
         first_name: first_name,
         last_name: last_name,

@@ -1,7 +1,7 @@
 import { RoleBaseAccessControl } from '@app/common/constant/index.constant';
 import { Roles } from '@app/common/decorators/role.decorator';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
-import { Body, Controller, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
   ApiBearerAuth,
@@ -12,7 +12,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { BodyCreateTierDTO } from 'apps/ms-rewards/src/dto/tier.dto';
-import { TierCreateResponseDto } from '../dto/tier-response.dto';
+import {
+  TierCreateResponseDto,
+  TierGetAllResponseDto,
+} from '../dto/tier-response.dto';
 
 @ApiTags('Rewards')
 @ApiBearerAuth('JWT-auth')
@@ -58,6 +61,30 @@ export class RewardController {
     return this.rewardsClient.send(
       { cmd: MessagePatternForMicro.REWARDS.CREATE_TIER },
       { ...body },
+    );
+  }
+
+  // Get all tiers
+  @ApiOperation({ summary: 'Get all tiers' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of all tiers',
+    type: TierGetAllResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin role required',
+  })
+  @Get('/tiers')
+  // @Roles(RoleBaseAccessControl.Admin)
+  getAll() {
+    return this.rewardsClient.send(
+      { cmd: MessagePatternForMicro.REWARDS.GET_ALL_TIERS },
+      {},
     );
   }
 }

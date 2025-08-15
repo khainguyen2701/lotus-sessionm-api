@@ -8,4 +8,8 @@ export class MsRewardService {
   async createTier(body: BodyCreateTierDTO): Promise<any> {
     return await this.tierRepository.createTier(body);
   }
+
+  async getAllTiers(): Promise<any> {
+    return await this.tierRepository.getAllTiers();
+  }
 }

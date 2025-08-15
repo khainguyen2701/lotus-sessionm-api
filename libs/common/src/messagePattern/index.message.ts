@@ -20,6 +20,7 @@ export const MessagePatternForMicro = {
     GET_DETAIL: 'rewards.get_reward_by_id',
     CREATE: 'rewards.create_reward',
     CREATE_TIER: 'rewards.create_tier',
+    GET_ALL_TIERS: 'rewards.get_all_tiers',
   },
   LOYALTY: {
     GET_ALL: 'loyalty.get_loyalty',

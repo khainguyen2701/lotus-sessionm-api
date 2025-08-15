@@ -85,4 +85,22 @@ export class UserRepository {
       throw error;
     }
   }
+
+  async updateUserTier(userId: string, tierId: string) {
+    try {
+      await this.userEntities.update(userId, { tier: { id: tierId } });
+
+      // Return updated user with relations
+      const updatedUser = await this.userEntities.findOne({
+        where: {
+          id: userId,
+        },
+        relations: ['tier', 'points'],
+      });
+
+      return updatedUser;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

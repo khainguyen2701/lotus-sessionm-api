@@ -4,6 +4,7 @@ import { GitHubService } from '@app/common';
 import { EditProfileDto } from './dto/edit-profile.dto';
 import { UploadFileDto, UploadFileResponse } from './dto/upload-file.dto';
 import { UserRepository } from './repositories/user.repository';
+import { TierRepository } from './repositories/tier.repository';
 import { BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -11,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 export class UserService {
   constructor(
     private userRepo: UserRepository,
+    private tierRepo: TierRepository,
     private readonly githubService: GitHubService,
     private readonly configService: ConfigService,
   ) {}
@@ -19,7 +21,34 @@ export class UserService {
       throw new BadRequestException('Invalid or missing userId');
     }
     // Logic xử lý profile
-    return await this.userRepo.findUserByIdAndType(userId, 'user');
+    const user = await this.userRepo.findUserByIdAndType(userId, 'user');
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Kiểm tra và cập nhật tier dựa trên balance_points
+    if (user.points && user.points.balance_points !== undefined) {
+      const balancePoints = user.points.balance_points;
+
+      // Tìm tier phù hợp với số điểm hiện tại
+      const appropriateTier =
+        await this.tierRepo.findTierByPointsRange(balancePoints);
+
+      // Nếu tìm thấy tier phù hợp và khác với tier hiện tại
+      if (
+        appropriateTier &&
+        (!user.tier || user.tier.id !== appropriateTier.id)
+      ) {
+        // Cập nhật tier mới cho user
+        const updatedUser = await this.userRepo.updateUserTier(
+          userId,
+          appropriateTier.id,
+        );
+        return updatedUser;
+      }
+    }
+
+    return user;
   }
 
   async adminProfile(userId: string) {

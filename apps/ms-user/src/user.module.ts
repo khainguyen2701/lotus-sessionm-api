@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepository } from './repositories/user.repository';
+import { TierRepository } from './repositories/tier.repository';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { DatabaseModule } from '@app/database';
@@ -17,6 +18,6 @@ import * as entities from '@app/database/entities';
     TypeOrmModule.forFeature(Object.values(entities)),
   ],
   controllers: [UserController],
-  providers: [UserService, UserRepository, GitHubService],
+  providers: [UserService, UserRepository, TierRepository, GitHubService],
 })
 export class UserModule {}

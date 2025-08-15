@@ -64,3 +64,43 @@ export class TierCreateResponseDto {
   })
   data: TierData;
 }
+
+export class TierGetAllResponseDto {
+  @ApiProperty({
+    description: 'Operation success status',
+    example: true,
+  })
+  success: boolean;
+
+  @ApiProperty({
+    description: 'Response message',
+    example: 'Retrieved all tiers successfully',
+  })
+  message: string;
+
+  @ApiProperty({
+    description: 'Array of tier data',
+    type: [TierData],
+    example: [
+      {
+        id: '397e708f-c069-4cf6-b961-254738ecd609',
+        tier_name: 'gold',
+        tier_description:
+          'Hội viên hạng thẻ Triệu dặm có thể tặng 01 thẻ hạng Bạch kim cho người thân trong Tài khoản gia đình...',
+        min_points: 1000,
+        max_points: 99999999,
+        priority: 1,
+        benefit: [
+          'Miễn phí hoặc giảm giá khi mua trước chỗ ngồi',
+          'Làm thủ tục tại quầy ưu tiên - Mời thêm 5 khách',
+        ],
+        next_tier: null,
+        previous_tier: 'gold',
+        maintain_points: 1000,
+        points_reward: 1,
+        reward_ratio: '5.00',
+      },
+    ],
+  })
+  data: TierData[];
+}

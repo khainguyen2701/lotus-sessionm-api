@@ -5,7 +5,7 @@ export class BodyCreateTierDTO {
   @ApiProperty({
     description: 'Tier name',
     example: 'gold',
-    enum: ['silver', 'titan', 'gold', 'platinum', 'million-miles'],
+    enum: ['silver', 'bronze', 'gold'],
   })
   @IsNotEmpty()
   @IsString()
@@ -48,4 +48,25 @@ export class BodyCreateTierDTO {
   })
   @IsNumber()
   priority: number;
+
+  @ApiProperty({
+    description: 'Points reward for this tier',
+    example: 1000,
+  })
+  @IsNumber()
+  points_reward: number;
+
+  @ApiProperty({
+    description: 'Reward ratio for this tier',
+    example: 10.0,
+  })
+  @IsNumber()
+  reward_ratio: number;
+
+  @ApiProperty({
+    description: 'Maintain points for this tier',
+    example: 1000,
+  })
+  @IsNumber()
+  maintain_points: number;
 }

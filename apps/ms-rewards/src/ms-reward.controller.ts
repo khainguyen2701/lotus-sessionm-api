@@ -12,4 +12,9 @@ export class MsRewardController {
   async createTier(@Body() body: BodyCreateTierDTO): Promise<any> {
     return await this.msRewardService.createTier(body);
   }
+
+  @MessagePattern({ cmd: MessagePatternForMicro.REWARDS.GET_ALL_TIERS })
+  async getAllTiers(): Promise<any> {
+    return await this.msRewardService.getAllTiers();
+  }
 }

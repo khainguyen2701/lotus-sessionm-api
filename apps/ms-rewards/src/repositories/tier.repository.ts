@@ -13,13 +13,21 @@ export class TierRepository {
   ) {}
   async createTier(body: BodyCreateTierDTO): Promise<TiersEntity> {
     try {
-      console.log('body', body);
       const tier = await this.tierRepository.save(body);
-      console.log('tier', tier);
       return tier;
     } catch (error) {
       console.log('error', error);
       throw new Error(error?.message || 'Error create tier');
+    }
+  }
+
+  async getAllTiers(): Promise<TiersEntity[]> {
+    try {
+      const tiers = await this.tierRepository.find();
+      return tiers;
+    } catch (error) {
+      console.log('error', error);
+      throw new Error(error?.message || 'Error get all tiers');
     }
   }
 }
