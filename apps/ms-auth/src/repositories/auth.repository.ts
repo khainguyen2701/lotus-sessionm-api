@@ -368,9 +368,11 @@ export class AuthRepository {
   ): Promise<AccountsEntity | null> {
     try {
       const account = await this.accountEntities.findOne({
-        where: { account_email: email.toLowerCase().trim() },
+        where: { account_email: email },
         relations: ['user'],
       });
+
+      console.log('account', account);
 
       if (!account) {
         throw new Error(`Account not found with email: ${email}`);
