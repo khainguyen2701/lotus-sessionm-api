@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { RoleBaseAccessControl } from '@app/common/constant/index.constant';
 import { Roles } from '@app/common/decorators/role.decorator';
 import { UserIdDecorator } from '@app/common/decorators/userId.decorators';
@@ -59,7 +60,7 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'Member portal profile success',
-    schema: UserGetProfileSchemaSuccess,
+    schema: UserGetProfileSchemaSuccess as any,
   })
   @ApiResponse({
     status: 401,
@@ -102,7 +103,7 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'Admin portal profile success',
-    schema: UserGetProfileSchemaSuccess,
+    schema: UserGetProfileSchemaSuccess as any,
   })
   @ApiResponse({
     status: 401,

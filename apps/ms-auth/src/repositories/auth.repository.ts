@@ -372,8 +372,6 @@ export class AuthRepository {
         relations: ['user'],
       });
 
-      console.log('account', account);
-
       if (!account) {
         throw new Error(`Account not found with email: ${email}`);
       }

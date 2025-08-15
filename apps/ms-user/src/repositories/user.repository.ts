@@ -28,6 +28,15 @@ export class UserRepository {
           'updated_at',
           'user_email',
           'user_number',
+          'phone_numbers',
+          'address',
+          'city',
+          'country',
+          'dob',
+          'gender',
+          'state',
+          'zip',
+          'user_type',
         ],
       });
       return user;

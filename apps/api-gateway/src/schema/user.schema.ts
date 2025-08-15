@@ -23,6 +23,7 @@ export const UserGetProfileSchemaSuccess = {
         user_type: {
           type: 'string',
           example: 'user',
+          required: true,
         },
         tier: {
           type: 'object',
@@ -107,34 +108,42 @@ export const UserGetProfileSchemaSuccess = {
         gender: {
           type: 'string',
           example: 'm',
+          required: true,
         },
         dob: {
           type: 'string',
           example: '2000-01-27',
+          required: true,
         },
         address: {
           type: 'string',
           example: '123 Main St',
+          required: true,
         },
         city: {
           type: 'string',
           example: 'New York',
+          required: true,
         },
         state: {
           type: 'string',
           example: 'NY',
+          required: true,
         },
         zip: {
           type: 'string',
           example: '10001',
+          required: true,
         },
         country: {
           type: 'string',
           example: 'USA',
+          required: true,
         },
         phone_numbers: {
           type: 'string',
           example: '0872702781',
+          required: true,
         },
         points: {
           type: 'object',
