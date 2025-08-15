@@ -14,17 +14,17 @@ export class ManualPointsRequestEntity {
 
   @Column({
     type: 'enum',
-    enum: ['flight', 'purchase'],
+    enum: ['flight', 'purchase', 'other'],
     default: 'flight',
   })
   request_type: 'flight' | 'purchase' | 'other';
 
   @Column({
     type: 'enum',
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending',
+    enum: ['processing', 'processed', 'rejected'],
+    default: 'processing',
   })
-  request_status: 'pending' | 'approved' | 'rejected';
+  status: 'processing' | 'processed' | 'rejected';
 
   @Column({
     type: 'int',
@@ -44,6 +44,12 @@ export class ManualPointsRequestEntity {
   })
   description: string;
 
+  @Column({
+    type: 'text',
+    default: '',
+  })
+  reason: string;
+
   @ManyToOne(() => UsersEntity, (user) => user.manual_points_requests, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
@@ -60,8 +66,8 @@ export class ManualPointsRequestEntity {
       nullable: true,
     },
   )
-  @JoinColumn({ name: 'process_by' })
-  process_by: UsersEntity;
+  @JoinColumn({ name: 'processed_by' })
+  processed_by: UsersEntity;
 
   @Column({
     type: 'text',
@@ -85,7 +91,7 @@ export class ManualPointsRequestEntity {
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  process_at: Date;
+  processed_at: Date;
 
   @Column({
     type: 'text',
@@ -100,7 +106,8 @@ export class ManualPointsRequestEntity {
   seat_class: string;
 
   @Column({
-    type: 'text',
+    type: 'varchar',
+    length: 100,
     default: '',
   })
   ticket_number: string;
@@ -115,23 +122,49 @@ export class ManualPointsRequestEntity {
     type: 'text',
     default: '',
   })
-  flight_router_from: string;
+  flight_departure_airport: string;
 
   @Column({
     type: 'text',
     default: '',
   })
-  flight_router_to: string;
+  flight_arrival_airport: string;
 
   @Column({
-    type: 'date',
+    type: 'timestamp',
     default: null,
+    nullable: true,
   })
-  flight_date: Date;
+  flight_departure_date: Date;
 
   @Column({
-    type: 'bigint',
+    type: 'timestamp',
+    default: null,
+    nullable: true,
+  })
+  flight_arrival_date: Date;
+
+  @Column({
+    type: 'int',
     default: 0,
   })
   distance: number;
+
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  flight_duration: number;
+
+  @Column({
+    type: 'text',
+    default: 'VNA',
+  })
+  flight_airline: string;
+
+  @Column({
+    type: 'text',
+    default: 'VNA',
+  })
+  request_number: string;
 }

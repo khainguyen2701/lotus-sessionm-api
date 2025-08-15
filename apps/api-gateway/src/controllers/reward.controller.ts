@@ -1,18 +1,62 @@
-import { Public } from '@app/common/decorators/public.decorator';
-import { AuthSignInDTO } from '@app/common/dto/ms-auth/auth.dto';
+import { RoleBaseAccessControl } from '@app/common/constant/index.constant';
+import { Roles } from '@app/common/decorators/role.decorator';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
 import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { BodyCreateTierDTO } from 'apps/ms-rewards/src/dto/tier.dto';
+import { TierCreateResponseDto } from '../dto/tier-response.dto';
 
+@ApiTags('Rewards')
+@ApiBearerAuth('JWT-auth')
 @Controller('ms-reward')
 export class RewardController {
   constructor(@Inject('REWARDS_SERVICE') private rewardsClient: ClientProxy) {}
 
-  @Public()
-  @Post('/create')
-  create(@Body() body: AuthSignInDTO) {
+  @ApiOperation({ summary: 'Create new tier for admin portal' })
+  @ApiBody({
+    type: BodyCreateTierDTO,
+    description: 'Tier creation data',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Tier created successfully',
+    type: TierCreateResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid tier data',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin role required',
+  })
+  @ApiHeader({
+    name: 'x-user-id',
+    description: 'User ID (UUID format)',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token',
+    required: true,
+  })
+  @Post('/tier/create')
+  @Roles(RoleBaseAccessControl.Admin)
+  create(@Body() body: BodyCreateTierDTO) {
     return this.rewardsClient.send(
-      { cms: MessagePatternForMicro.REWARDS.CREATE },
+      { cmd: MessagePatternForMicro.REWARDS.CREATE_TIER },
       { ...body },
     );
   }

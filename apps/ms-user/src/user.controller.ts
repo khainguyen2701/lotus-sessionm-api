@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
 import { BadRequestException, Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
+import { EditProfileDto } from './dto/edit-profile.dto';
 import { MemberProfileDto } from './dto/member-profile.dto';
 import { UploadFileDto, UploadFileResponse } from './dto/upload-file.dto';
 import { UserService } from './user.service';
@@ -25,6 +25,16 @@ export class UserController {
   async adminProfile(data: MemberProfileDto) {
     try {
       return await this.userService.adminProfile(data.userId);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  // edit profile
+  @MessagePattern({ cmd: MessagePatternForMicro.USER.EDIT_PROFILE })
+  async editProfile(data: EditProfileDto) {
+    try {
+      return await this.userService.editProfile(data);
     } catch (error) {
       throw new BadRequestException(error.message);
     }

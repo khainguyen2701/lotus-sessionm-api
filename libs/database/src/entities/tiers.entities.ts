@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UsersEntity } from './users.entitites';
 
 @Entity('tiers')
@@ -15,20 +9,46 @@ export class TiersEntity {
   @Column({
     type: 'enum',
     name: 'tier_name',
-    enum: ['bronze', 'gold', 'silver'],
-    default: 'bronze',
+    enum: ['silver', 'titan', 'gold', 'platinum', 'million-miles'],
+    default: 'silver',
     unique: true,
   })
   tier_name: string;
 
   @Column({
-    type: 'varchar',
+    type: 'text',
     name: 'tier_description',
-    length: 100,
   })
   tier_description: string;
 
-  @OneToOne(() => UsersEntity, (user) => user.tier)
-  @JoinColumn({ name: 'user_id' })
-  user: UsersEntity;
+  @OneToMany(() => UsersEntity, (user) => user.tier)
+  users: UsersEntity[];
+
+  @Column({
+    type: 'int',
+    name: 'min_points',
+    default: 0,
+  })
+  min_points: number;
+
+  @Column({
+    type: 'int',
+    name: 'max_points',
+    default: 0,
+  })
+  max_points: number;
+
+  @Column({
+    type: 'int',
+    name: 'priority',
+    default: 0,
+  })
+  priority: number;
+
+  @Column({
+    type: 'json',
+    name: 'benefit',
+    nullable: true,
+  })
+  benefit: string[];
 }

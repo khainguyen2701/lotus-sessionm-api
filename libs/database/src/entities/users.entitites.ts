@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -11,7 +12,7 @@ import {
 import { AccountsEntity } from './accounts.entities';
 import { ManualPointsRequestEntity } from './manual_points_request.entities';
 import { PointTransactionsEntity } from './point_transactions.entities';
-import { SessionmAccountsEntity } from './sessionm_accounts.entities';
+import { PointsEntity } from './points.entities';
 import { SyncLogEntity } from './sync_log.entities';
 import { TiersEntity } from './tiers.entities';
 
@@ -50,8 +51,7 @@ export class UsersEntity {
   @JoinColumn({ name: 'account_id' })
   account: AccountsEntity;
 
-  @OneToOne(() => TiersEntity, (tier) => tier.user, {
-    cascade: true,
+  @ManyToOne(() => TiersEntity, (tier) => tier.users, {
     nullable: true,
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
@@ -71,19 +71,6 @@ export class UsersEntity {
   )
   @JoinColumn({ name: 'point_transaction_id' })
   point_transactions: PointTransactionsEntity[];
-
-  @OneToOne(
-    () => SessionmAccountsEntity,
-    (sessionmAccount) => sessionmAccount.user,
-    {
-      onDelete: 'SET NULL',
-      onUpdate: 'CASCADE',
-      nullable: true,
-      cascade: true,
-    },
-  )
-  @JoinColumn({ name: 'sessionm_account_id' })
-  sessionm_account: SessionmAccountsEntity;
 
   @OneToMany(() => SyncLogEntity, (syncLog) => syncLog.user, {
     onDelete: 'SET NULL',
@@ -109,7 +96,7 @@ export class UsersEntity {
 
   @OneToMany(
     () => ManualPointsRequestEntity,
-    (manualPointsRequest) => manualPointsRequest.process_by,
+    (manualPointsRequest) => manualPointsRequest.processed_by,
     {
       onDelete: 'SET NULL',
       onUpdate: 'CASCADE',
@@ -117,7 +104,7 @@ export class UsersEntity {
       cascade: true,
     },
   )
-  @JoinColumn({ name: 'process_by' })
+  @JoinColumn({ name: 'processed_by' })
   manual_points_requests_process_by: ManualPointsRequestEntity[];
 
   @CreateDateColumn()
@@ -204,4 +191,18 @@ export class UsersEntity {
     nullable: true,
   })
   phone_numbers: string;
+
+  @OneToOne(() => PointsEntity, (points) => points.user, {
+    cascade: true,
+  })
+  @JoinColumn({ name: 'points_id' })
+  points: PointsEntity;
+
+  @Column({
+    type: 'varchar',
+    name: 'user_number',
+    length: 100,
+    nullable: true,
+  })
+  user_number: string;
 }

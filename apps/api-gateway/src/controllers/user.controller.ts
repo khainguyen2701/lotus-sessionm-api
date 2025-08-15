@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { RoleBaseAccessControl } from '@app/common/constant/index.constant';
 import { Roles } from '@app/common/decorators/role.decorator';
 import { UserIdDecorator } from '@app/common/decorators/userId.decorators';
@@ -10,6 +9,7 @@ import {
   Get,
   Inject,
   Post,
+  Put,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -17,18 +17,17 @@ import { ClientProxy } from '@nestjs/microservices';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiConsumes,
   ApiHeader,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { FileUploadDto, FileUploadResponseDto } from '../dto/file-upload.dto';
 import {
-  UploadFileSchema,
-  UploadFileSchemaResponse,
-} from '../schema/upload.chema';
+  EditProfileDto,
+  EditProfileResponseDto,
+} from '../dto/edit-profile.dto';
+import { FileUploadDto, FileUploadResponseDto } from '../dto/file-upload.dto';
 import {
   UserGetProfileSchemaError,
   UserGetProfileSchemaSuccess,
@@ -138,6 +137,100 @@ export class UsersController {
         cmd: MessagePatternForMicro.USER.ADMIN_PROFILE,
       },
       { userId },
+    );
+  }
+
+  // Edit member profile
+  @ApiOperation({ summary: 'Edit member portal profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'Member profile updated successfully',
+    type: EditProfileResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiHeader({
+    name: 'x-user-id',
+    description: 'User ID (UUID format)',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token',
+    required: true,
+  })
+  @Put('/member/profile')
+  @Roles(RoleBaseAccessControl.User)
+  editMemberProfile(
+    @UserIdDecorator() userId: string,
+    @Body() body: EditProfileDto,
+  ) {
+    return this.userClient.send(
+      {
+        cmd: MessagePatternForMicro.USER.EDIT_PROFILE,
+      },
+      { userId, ...body },
+    );
+  }
+
+  // Edit admin profile
+  @ApiOperation({ summary: 'Edit admin portal profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'Admin profile updated successfully',
+    type: EditProfileResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiHeader({
+    name: 'x-user-id',
+    description: 'User ID (UUID format)',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token',
+    required: true,
+  })
+  @Put('/admin/profile')
+  @Roles(RoleBaseAccessControl.Admin)
+  editAdminProfile(
+    @UserIdDecorator() userId: string,
+    @Body() body: EditProfileDto,
+  ) {
+    return this.userClient.send(
+      {
+        cmd: MessagePatternForMicro.USER.EDIT_PROFILE,
+      },
+      { userId, ...body },
     );
   }
 

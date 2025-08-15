@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { RpcToHttpExceptionFilter } from '@app/common/filters/rpc-exception.filter';
 import { ResponseInterceptor } from '@app/common/interceptors/error.interceptor';
 import { ValidationPipe } from '@nestjs/common';

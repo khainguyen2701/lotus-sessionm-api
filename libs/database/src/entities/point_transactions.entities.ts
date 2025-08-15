@@ -4,10 +4,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UsersEntity } from './users.entitites';
+import { SyncLogEntity } from './sync_log.entities';
 
 @Entity('point_transactions')
 export class PointTransactionsEntity {
@@ -19,12 +21,6 @@ export class PointTransactionsEntity {
     enum: ['earn', 'spend'],
   })
   transaction_type: 'earn' | 'spend' | 'other';
-
-  @Column({
-    type: 'int',
-    default: 0,
-  })
-  points: number;
 
   @Column({
     type: 'varchar',
@@ -65,4 +61,30 @@ export class PointTransactionsEntity {
     nullable: true,
   })
   status: 'rejected' | 'pending' | 'processed';
+
+  @OneToOne(() => SyncLogEntity, (syncLog) => syncLog.point_transaction, {
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'sync_log_id' })
+  sync_log: SyncLogEntity;
+
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  points_used: number;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  points_used_at: Date;
+
+  @Column({
+    type: 'text',
+    default: '',
+  })
+  reason: string;
 }

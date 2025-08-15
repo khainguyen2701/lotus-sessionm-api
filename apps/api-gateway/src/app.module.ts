@@ -8,6 +8,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppService } from './app.service';
 import { UsersController } from './controllers/user.controller';
 import { AuthController } from './controllers/auth.controller';
+import { RewardController } from './controllers/reward.controller';
 
 @Module({
   imports: [
@@ -55,7 +56,7 @@ import { AuthController } from './controllers/auth.controller';
       },
     ]),
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [UsersController, AuthController, RewardController],
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: HybridAuthGuard },

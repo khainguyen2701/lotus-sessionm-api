@@ -1,13 +1,15 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
+  JoinColumn,
   ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
+import { PointTransactionsEntity } from './point_transactions.entities';
 import { UsersEntity } from './users.entitites';
-import { SessionmAccountsEntity } from './sessionm_accounts.entities';
 
 @Entity('sync_log')
 export class SyncLogEntity {
@@ -45,20 +47,21 @@ export class SyncLogEntity {
   })
   user: UsersEntity;
 
-  @ManyToOne(
-    () => SessionmAccountsEntity,
-    (sessionmAccount) => sessionmAccount.sync_logs,
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @OneToOne(
+    () => PointTransactionsEntity,
+    (pointTransaction) => pointTransaction.sync_log,
     {
       onDelete: 'SET NULL',
       onUpdate: 'CASCADE',
       nullable: true,
     },
   )
-  sessionm_account: SessionmAccountsEntity;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
+  @JoinColumn({ name: 'point_transaction_id' })
+  point_transaction: PointTransactionsEntity;
 }

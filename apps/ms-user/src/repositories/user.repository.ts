@@ -18,7 +18,7 @@ export class UserRepository {
           id: userId,
           user_type: type,
         },
-        relations: ['sessionm_account', 'tier'],
+        relations: ['tier', 'points'],
         select: [
           'id',
           'user_type',
@@ -27,10 +27,60 @@ export class UserRepository {
           'created_at',
           'updated_at',
           'user_email',
-          'sessionm_account',
+          'user_number',
         ],
       });
       return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findUserById(userId: string) {
+    try {
+      const user = await this.userEntities.findOne({
+        where: {
+          id: userId,
+        },
+        relations: ['tier', 'points'],
+      });
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateUserProfile(userId: string, updateData: Partial<UsersEntity>) {
+    try {
+      await this.userEntities.update(userId, updateData);
+
+      // Return updated user with relations
+      const updatedUser = await this.userEntities.findOne({
+        where: {
+          id: userId,
+        },
+        relations: ['tier', 'points'],
+        select: [
+          'id',
+          'user_type',
+          'first_name',
+          'last_name',
+          'gender',
+          'dob',
+          'address',
+          'city',
+          'state',
+          'zip',
+          'country',
+          'phone_numbers',
+          'created_at',
+          'updated_at',
+          'user_email',
+          'user_number',
+        ],
+      });
+
+      return updatedUser;
     } catch (error) {
       throw error;
     }

@@ -53,7 +53,7 @@ export class AuthMemberSignUpDTO {
 
   @ApiProperty({
     description: 'Gender for login',
-    example: 'male',
+    example: 'm',
     enum: ['m', 'f'],
   })
   @IsString()

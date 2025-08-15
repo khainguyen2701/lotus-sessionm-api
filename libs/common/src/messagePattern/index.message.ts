@@ -12,12 +12,14 @@ export const MessagePatternForMicro = {
     GET_DETAIL: 'user.get_user_by_id',
     MEMBER_PROFILE: 'user.member_profile',
     ADMIN_PROFILE: 'user.admin_profile',
+    EDIT_PROFILE: 'user.edit_profile',
     UPLOAD_FILE: 'user.upload_file',
   },
   REWARDS: {
     GET_ALL: 'rewards.get_rewards',
     GET_DETAIL: 'rewards.get_reward_by_id',
     CREATE: 'rewards.create_reward',
+    CREATE_TIER: 'rewards.create_tier',
   },
   LOYALTY: {
     GET_ALL: 'loyalty.get_loyalty',

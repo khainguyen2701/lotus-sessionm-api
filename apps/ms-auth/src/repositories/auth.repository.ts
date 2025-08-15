@@ -7,16 +7,18 @@ import {
   DatabaseTransactionException,
   UserNotFoundException,
 } from '@app/common/httpCode/http.custom';
-import { AccountsEntity, UsersEntity } from '@app/database';
+import { generateVNAUserNumber } from '@app/common/utils/genUserNumber';
+import {
+  AccountsEntity,
+  PointsEntity,
+  TiersEntity,
+  UsersEntity,
+} from '@app/database';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'bcrypt';
 import { DataSource, Repository } from 'typeorm';
-import {
-  BodyCreateProfileSessionM,
-  ResponseCreateProfileSessionM,
-} from '../type/sessionM.type';
 
 @Injectable()
 export class AuthRepository {
@@ -28,6 +30,10 @@ export class AuthRepository {
     private userEntities: Repository<UsersEntity>,
     @InjectRepository(AccountsEntity)
     private accountEntities: Repository<AccountsEntity>,
+    @InjectRepository(TiersEntity)
+    private tiersEntities: Repository<TiersEntity>,
+    @InjectRepository(PointsEntity)
+    private pointsEntities: Repository<PointsEntity>,
     private dataSource: DataSource,
     private configService: ConfigService,
     private httpClientService: HttpClientService,
@@ -55,24 +61,6 @@ export class AuthRepository {
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-  }
-
-  private async createProfileOnSessionM(
-    body: BodyCreateProfileSessionM,
-  ): Promise<ResponseCreateProfileSessionM | null> {
-    try {
-      const response =
-        await this.httpClientService.post<ResponseCreateProfileSessionM>(
-          `/priv/v1/apps/${this.configService.get('sessionM.appKey')}/users`,
-          body,
-        );
-
-      console.log('response', response);
-      return response.data;
-    } catch (error) {
-      console.log('error', error);
-      return null;
-    }
   }
 
   /**
@@ -156,12 +144,34 @@ export class AuthRepository {
         account_phone: phone_numbers, // Set to null to avoid unique constraint violation
       });
 
-      // Create user with reference to account
+      // Find bronze tier to assign to new user
+      const bronzeTier = await queryRunner.manager.findOne(TiersEntity, {
+        where: { tier_name: 'silver' },
+      });
+
+      // Create points record first (without user reference)
+      const pointsEntity = queryRunner.manager.create(PointsEntity, {
+        total_points: 0,
+        used_points: 0,
+        balance_points: 0,
+        available_points: 0,
+      });
+
+      const points = await queryRunner.manager.save(pointsEntity);
+
+      this.logger.log(`Points record created first - Points ID: ${points.id}`);
+
+      const userNumber = generateVNAUserNumber();
+
+      // Create user with references to account, tier, and points
       const user = await queryRunner.manager.save(UsersEntity, {
         user_email: email.toLowerCase().trim(),
         user_name: username,
+        user_number: userNumber,
         user_type: 'user', // Set as 'user' since enum only has 'user' and 'admin'
         account: account,
+        tier: bronzeTier ?? {}, // Assign bronze tier to new user
+        points: points, // Assign points to new user
         first_name: first_name,
         last_name: last_name,
         address: address,
@@ -174,38 +184,13 @@ export class AuthRepository {
         zip: zip,
       });
 
-      // Create profile on SessionM
-      const profileSessionM = await this.createProfileOnSessionM({
-        user: {
-          external_id: user.id,
-          first_name: first_name,
-          last_name: last_name,
-          email: email,
-          phone_numbers: [
-            {
-              phone_type: 'mobile',
-              phone_number: user.phone_numbers,
-              preference_flags: ['primary'],
-            },
-          ],
-          opted_in: 'true',
-          external_id_type: 'user_id',
-          gender: gender,
-          dob: dob,
-          address: address,
-          city: city,
-          state: state,
-          zip: zip,
-          country: country,
-          user_profile: {
-            partner: ['root'],
-          },
-        },
-      });
+      // Update points with user reference to complete the relationship
+      points.user = user;
+      await queryRunner.manager.save(points);
 
-      if (!profileSessionM) {
-        throw new Error('Failed to create profile on SessionM');
-      }
+      this.logger.log(
+        `User created with tier and points - User ID: ${user.id}, Points ID: ${points.id}`,
+      );
 
       await queryRunner.commitTransaction();
 
@@ -282,13 +267,18 @@ export class AuthRepository {
         account_phone: null, // Set to null to avoid unique constraint violation
       });
 
-      // Create user with reference to account
+      // Create user with reference to account and bronze tier
       const user = await queryRunner.manager.save(UsersEntity, {
         user_email: email.toLowerCase().trim(),
         user_name: username,
         user_type: 'admin', // Set as 'admin' since enum only has 'user' and 'admin'
         account: account,
+        tier: {}, // Assign bronze tier to new admin user
       });
+
+      this.logger.log(
+        `Admin user created: ${user.id} - Account ID: ${account.id}`,
+      );
 
       await queryRunner.commitTransaction();
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { IS_PUBLIC_KEY } from '@app/common/decorators/public.decorator';
 import { ExpiredSessionException } from '@app/common/httpCode/http.custom';
 import {

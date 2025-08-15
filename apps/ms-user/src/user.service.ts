@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import { GitHubService } from '@app/common';
+import { EditProfileDto } from './dto/edit-profile.dto';
 import { UploadFileDto, UploadFileResponse } from './dto/upload-file.dto';
 import { UserRepository } from './repositories/user.repository';
 import { BadRequestException } from '@nestjs/common';
@@ -32,6 +33,41 @@ export class UserService {
     }
     // Logic xử lý profile
     return user;
+  }
+
+  async editProfile(data: EditProfileDto) {
+    if (!data.userId) {
+      throw new BadRequestException('Invalid or missing userId');
+    }
+
+    // Find user by ID
+    const user = await this.userRepo.findUserById(data.userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Update user profile fields
+    const updateData: Partial<typeof user> = {};
+
+    if (data.first_name !== undefined) updateData.first_name = data.first_name;
+    if (data.last_name !== undefined) updateData.last_name = data.last_name;
+    if (data.gender !== undefined) updateData.gender = data.gender;
+    if (data.dob !== undefined) updateData.dob = new Date(data.dob);
+    if (data.address !== undefined) updateData.address = data.address;
+    if (data.city !== undefined) updateData.city = data.city;
+    if (data.state !== undefined) updateData.state = data.state;
+    if (data.zip !== undefined) updateData.zip = data.zip;
+    if (data.country !== undefined) updateData.country = data.country;
+    if (data.phone_numbers !== undefined)
+      updateData.phone_numbers = data.phone_numbers;
+
+    // Update user profile
+    const updatedUser = await this.userRepo.updateUserProfile(
+      data.userId,
+      updateData,
+    );
+
+    return updatedUser;
   }
 
   async uploadFile(data: UploadFileDto): Promise<UploadFileResponse> {
