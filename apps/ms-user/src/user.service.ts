@@ -90,6 +90,9 @@ export class UserService {
     if (data.phone_numbers !== undefined)
       updateData.phone_numbers = data.phone_numbers;
 
+    if (data.district !== undefined) updateData.district = data.district;
+    if (data.ward !== undefined) updateData.ward = data.ward;
+
     // Update user profile
     const updatedUser = await this.userRepo.updateUserProfile(
       data.userId,

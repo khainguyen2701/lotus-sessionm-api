@@ -106,6 +106,26 @@ export class EditProfileDto {
   @IsString()
   @MaxLength(20, { message: 'Phone number must not exceed 20 characters' })
   phone_numbers?: string;
+
+  @ApiProperty({
+    description: 'District',
+    example: 'District 1',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100, { message: 'District must not exceed 100 characters' })
+  district?: string;
+
+  @ApiProperty({
+    description: 'Ward',
+    example: 'Ward 1',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100, { message: 'Ward must not exceed 100 characters' })
+  ward?: string;
 }
 
 export class EditProfileResponseDto {
@@ -140,6 +160,8 @@ export class EditProfileResponseDto {
       user_number: 'USR12345',
       created_at: '2023-01-01T00:00:00.000Z',
       updated_at: '2023-01-02T00:00:00.000Z',
+      district: 'District 1',
+      ward: 'Ward 1',
       tier: {
         id: 'a8285f70-01fc-4254-9aba-0f7c56582cd9',
         tier_name: 'silver',

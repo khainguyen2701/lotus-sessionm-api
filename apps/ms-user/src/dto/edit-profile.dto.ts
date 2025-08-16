@@ -60,6 +60,16 @@ export class EditProfileDto {
   @IsString()
   @MaxLength(20, { message: 'Phone number must not exceed 20 characters' })
   phone_numbers?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100, { message: 'District must not exceed 100 characters' })
+  district?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100, { message: 'Ward must not exceed 100 characters' })
+  ward?: string;
 }
 
 export class EditProfileRequestDto {
