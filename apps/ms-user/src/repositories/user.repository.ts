@@ -37,6 +37,8 @@ export class UserRepository {
           'state',
           'zip',
           'user_type',
+          'district',
+          'ward',
         ],
       });
       return user;
@@ -86,6 +88,8 @@ export class UserRepository {
           'updated_at',
           'user_email',
           'user_number',
+          'district',
+          'ward',
         ],
       });
 

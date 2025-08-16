@@ -205,4 +205,20 @@ export class UsersEntity {
     nullable: true,
   })
   user_number: string;
+
+  @Column({
+    type: 'varchar',
+    name: 'district',
+    length: 100,
+    nullable: true,
+  })
+  district: string;
+
+  @Column({
+    type: 'varchar',
+    name: 'ward',
+    length: 100,
+    nullable: true,
+  })
+  ward: string;
 }
