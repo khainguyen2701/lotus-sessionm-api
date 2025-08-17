@@ -27,5 +27,6 @@ export const MessagePatternForMicro = {
     GET_DETAIL: 'loyalty.get_loyalty_by_id',
     CREATE: 'loyalty.create_loyalty',
     CREATE_MANUAL_REQUEST: 'loyalty.create_manual_request',
+    GET_LIST_MANUAL_REQUEST: 'loyalty.get_list_manual_request',
   },
 };

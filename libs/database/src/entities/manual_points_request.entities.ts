@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -8,6 +9,8 @@ import {
 import { UsersEntity } from './users.entitites';
 
 @Entity('manual_points_request')
+@Index('idx_manual_points_request_user_id', ['user'])
+@Index('idx_manual_points_request_status', ['status'])
 export class ManualPointsRequestEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -55,6 +58,7 @@ export class ManualPointsRequestEntity {
     onUpdate: 'CASCADE',
     nullable: true,
   })
+  @JoinColumn({ name: 'userId' })
   user: UsersEntity;
 
   @ManyToOne(

@@ -135,3 +135,133 @@ export const ClaimMilesManualSchema = {
     },
   },
 };
+
+export const GetListClaimMilesSchema = {
+  type: 'object',
+  properties: {
+    success: {
+      type: 'boolean',
+      example: true,
+    },
+    data: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+                example: '52916ed6-cebb-4094-8352-b5c325a17603',
+              },
+              request_type: {
+                type: 'string',
+                example: 'flight',
+              },
+              status: {
+                type: 'string',
+                example: 'processing',
+              },
+              points: {
+                type: 'number',
+                example: 995,
+              },
+              description: {
+                type: 'string',
+                example: 'Test 5',
+              },
+              user: {
+                type: 'object',
+                properties: {
+                  id: {
+                    type: 'string',
+                    example: '08fffc48-e81d-4923-8519-2d06df4b0877',
+                  },
+                  first_name: {
+                    type: 'string',
+                    example: 'tin',
+                  },
+                  last_name: {
+                    type: 'string',
+                    example: 'Khaiiiii',
+                  },
+                },
+              },
+              uploaded_at: {
+                type: 'string',
+                format: 'date-time',
+                example: '2025-08-17T11:00:57.133Z',
+              },
+              processed_at: {
+                type: 'string',
+                format: 'date-time',
+                example: '2025-08-17T11:00:57.133Z',
+              },
+              seat_code: {
+                type: 'string',
+                example: '36B',
+              },
+              ticket_number: {
+                type: 'string',
+                example: '7385927102340',
+              },
+              flight_code: {
+                type: 'string',
+                example: 'VN1753',
+              },
+              flight_departure_airport: {
+                type: 'string',
+                example: 'DAD',
+              },
+              flight_arrival_airport: {
+                type: 'string',
+                example: 'PXU',
+              },
+              flight_departure_date: {
+                type: 'string',
+                format: 'date-time',
+                example: '2025-08-18T17:00:00.000Z',
+              },
+              flight_arrival_date: {
+                type: 'string',
+                format: 'date-time',
+                example: '2025-08-19T17:00:00.000Z',
+              },
+              request_number: {
+                type: 'string',
+                example: 'REQ-1755428457133',
+              },
+            },
+          },
+        },
+        pagination: {
+          type: 'object',
+          properties: {
+            total: {
+              type: 'number',
+              example: 8,
+            },
+            page: {
+              type: 'number',
+              example: 2,
+            },
+            size: {
+              type: 'number',
+              example: 5,
+            },
+            totalPages: {
+              type: 'number',
+              example: 2,
+            },
+          },
+        },
+      },
+    },
+    timestamp: {
+      type: 'string',
+      format: 'date-time',
+      example: '2025-08-17T11:16:07.543Z',
+    },
+  },
+};

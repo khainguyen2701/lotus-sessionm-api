@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -9,6 +10,7 @@ import {
 import { UsersEntity } from './users.entitites';
 
 @Entity('accounts')
+@Index('idx_accounts_account_email', ['account_email'])
 export class AccountsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

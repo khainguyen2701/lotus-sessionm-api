@@ -3,6 +3,10 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateManualRequestDTO {
   @ApiProperty({
+    description: 'User ID who creates the request',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiProperty({
     description: 'Request type',
     enum: ['flight', 'purchase', 'other'],
     default: 'flight',

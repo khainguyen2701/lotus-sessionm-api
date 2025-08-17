@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -17,6 +18,9 @@ import { SyncLogEntity } from './sync_log.entities';
 import { TiersEntity } from './tiers.entities';
 
 @Entity('users')
+@Index('idx_users_user_email', ['user_email'])
+@Index('idx_users_user_type', ['user_type'])
+@Index('idx_users_id', ['id'])
 export class UsersEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
