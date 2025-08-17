@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable no-useless-catch */
 import { UsersEntity } from '@app/database';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EnumSortClaimMilesList } from 'apps/api-gateway/src/dto/claim';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -112,6 +114,37 @@ export class UserRepository {
       });
 
       return updatedUser;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async adminGetListMember(query: {
+    page: number;
+    size: number;
+    sort?: EnumSortClaimMilesList;
+  }): Promise<any> {
+    try {
+      const { page = 1, size = 10, sort = 'desc' } = query;
+      const queryBuild = this.userEntities
+        .createQueryBuilder('user')
+        .where('user.user_type = :user_type', { user_type: 'user' })
+        .leftJoinAndSelect('user.tier', 'tier')
+        .leftJoinAndSelect('user.points', 'points')
+        .orderBy('user.created_at', sort.toUpperCase() as any)
+        .skip((page - 1) * size)
+        .take(size);
+
+      const [data, total] = await queryBuild.getManyAndCount();
+      return {
+        data,
+        pagination: {
+          total,
+          page,
+          size,
+          totalPages: Math.ceil(total / size),
+        },
+      };
     } catch (error) {
       throw error;
     }

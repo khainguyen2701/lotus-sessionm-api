@@ -14,6 +14,7 @@ export const MessagePatternForMicro = {
     ADMIN_PROFILE: 'user.admin_profile',
     EDIT_PROFILE: 'user.edit_profile',
     UPLOAD_FILE: 'user.upload_file',
+    ADMIN_GET_LIST_MEMBER: 'admin.get_list_user',
   },
   REWARDS: {
     GET_ALL: 'rewards.get_rewards',
@@ -28,5 +29,7 @@ export const MessagePatternForMicro = {
     CREATE: 'loyalty.create_loyalty',
     CREATE_MANUAL_REQUEST: 'loyalty.create_manual_request',
     GET_LIST_MANUAL_REQUEST: 'loyalty.get_list_manual_request',
+    GET_LIST_MANUAL_REQUEST_FOR_ADMIN:
+      'loyalty.get_list_manual_request_for_admin',
   },
 };

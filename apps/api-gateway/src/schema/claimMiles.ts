@@ -186,6 +186,14 @@ export const GetListClaimMilesSchema = {
                     type: 'string',
                     example: 'Khaiiiii',
                   },
+                  user_name: {
+                    type: 'string',
+                    example: 'tin.nguyen',
+                  },
+                  user_number: {
+                    type: 'string',
+                    example: '123456789',
+                  },
                 },
               },
               uploaded_at: {

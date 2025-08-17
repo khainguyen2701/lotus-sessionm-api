@@ -26,4 +26,14 @@ export class MsLoyaltyService {
   ) {
     return await this.claimMilesRepository.getListManualRequest(query);
   }
+
+  async getListManualRequestForAdmin(
+    query: {
+      status?: EnumStatusClaimMilesList;
+      sort?: EnumSortClaimMilesList;
+      byUser?: string;
+    } & PagingConfig,
+  ) {
+    return await this.claimMilesRepository.getListManualRequestForAdmin(query);
+  }
 }

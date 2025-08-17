@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { RoleBaseAccessControl } from '@app/common/constant/index.constant';
+import {
+  PagingConfig,
+  PagingDecorator,
+} from '@app/common/decorators/paging.decorators';
 import { Roles } from '@app/common/decorators/role.decorator';
 import { UserIdDecorator } from '@app/common/decorators/userId.decorators';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
@@ -11,6 +15,7 @@ import {
   Inject,
   Post,
   Put,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -21,15 +26,18 @@ import {
   ApiConsumes,
   ApiHeader,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { EnumSortClaimMilesList } from '../dto/claim';
 import {
   EditProfileDto,
   EditProfileResponseDto,
 } from '../dto/edit-profile.dto';
 import { FileUploadDto, FileUploadResponseDto } from '../dto/file-upload.dto';
 import {
+  AdminGetListUserSchema,
   UserGetProfileSchemaError,
   UserGetProfileSchemaSuccess,
 } from '../schema/user.schema';
@@ -39,21 +47,6 @@ import {
 @Controller('ms-users')
 export class UsersController {
   constructor(@Inject('USER_SERVICE') private userClient: ClientProxy) {}
-
-  // @ApiOperation({ summary: 'Get all users' })
-  // @ApiResponse({ status: 200, description: 'List of all users' })
-  // @ApiResponse({
-  //   status: 403,
-  //   description: 'Forbidden - Super Admin role required',
-  // })
-  // @Roles(RoleBaseAccessControl.Admin)
-  // @Get()
-  // findAll() {
-  //   return this.userClient.send(
-  //     { cmd: MessagePatternForMicro.USER.GET_ALL },
-  //     {},
-  //   );
-  // }
 
   // Get member profile
   @ApiOperation({ summary: 'Get member portal profile' })
@@ -322,5 +315,50 @@ export class UsersController {
       },
     );
     return response;
+  }
+
+  @ApiOperation({ summary: 'Get all user with role admin' })
+  @ApiQuery({
+    name: 'sort',
+    enum: EnumSortClaimMilesList,
+    required: false,
+    description: 'Sort by uploaded_at',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'size',
+    type: Number,
+    required: false,
+    description: 'Page size',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Get list user successfully',
+    schema: AdminGetListUserSchema,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+  })
+  @Get('/admin/users')
+  @Roles(RoleBaseAccessControl.Admin)
+  adminGetListMember(
+    @Query('sort') sort?: EnumSortClaimMilesList,
+    @PagingDecorator() pagination?: PagingConfig,
+  ) {
+    const payload = {
+      page: pagination?.page ?? 1,
+      size: pagination?.size ?? 10,
+      ...(sort && { sort }),
+    };
+    return this.userClient.send(
+      { cmd: MessagePatternForMicro.USER.ADMIN_GET_LIST_MEMBER },
+      payload,
+    );
   }
 }

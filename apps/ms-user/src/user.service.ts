@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable } from '@nestjs/common';
 import { GitHubService } from '@app/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { EnumSortClaimMilesList } from 'apps/api-gateway/src/dto/claim';
 import { EditProfileDto } from './dto/edit-profile.dto';
 import { UploadFileDto, UploadFileResponse } from './dto/upload-file.dto';
-import { UserRepository } from './repositories/user.repository';
 import { TierRepository } from './repositories/tier.repository';
-import { BadRequestException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { UserRepository } from './repositories/user.repository';
 
 @Injectable()
 export class UserService {
@@ -138,5 +138,13 @@ export class UserService {
         message: error?.message || 'Failed to upload file',
       };
     }
+  }
+
+  async adminGetListMember(query: {
+    page: number;
+    size: number;
+    sort?: EnumSortClaimMilesList;
+  }): Promise<any> {
+    return await this.userRepo.adminGetListMember(query);
   }
 }

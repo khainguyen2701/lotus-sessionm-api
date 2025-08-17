@@ -22,6 +22,8 @@ import {
   ClaimMilesManualSchema,
   GetListClaimMilesSchema,
 } from '../schema/claimMiles';
+import { Roles } from '@app/common/decorators/role.decorator';
+import { RoleBaseAccessControl } from '@app/common/constant/index.constant';
 
 @ApiTags('Loyalty')
 @ApiBearerAuth('JWT-auth')
@@ -56,8 +58,8 @@ export class LoyaltyController {
     );
   }
 
-  //Get list manual request
-  @ApiOperation({ summary: 'Get list manual request' })
+  //Get list manual request for member
+  @ApiOperation({ summary: 'Get list manual request for member' })
   @ApiHeader({
     name: 'x-user-id',
     description: 'User ID',
@@ -102,7 +104,8 @@ export class LoyaltyController {
     status: 400,
     description: 'Bad request - Invalid input data',
   })
-  @Get('/claim-miles-manual')
+  @Get('/member/claim-miles-manual')
+  @Roles(RoleBaseAccessControl.User)
   getListManualRequest(
     @UserIdDecorator() userId: string,
     @Query('sort') sort?: EnumSortClaimMilesList,
@@ -123,6 +126,88 @@ export class LoyaltyController {
 
     const data = this.loyaltyClient.send(
       { cmd: MessagePatternForMicro.LOYALTY.GET_LIST_MANUAL_REQUEST },
+      payload,
+    );
+
+    return data;
+  }
+
+  //Get list manual request for admin
+  @ApiOperation({ summary: 'Get list manual request for admin' })
+  // @ApiHeader({
+  //   name: 'x-user-id',
+  //   description: 'User ID',
+  //   required: true,
+  // })
+  @ApiQuery({
+    name: 'sort',
+    enum: EnumSortClaimMilesList,
+    required: false,
+    description: 'Sort by uploaded_at',
+  })
+  @ApiQuery({
+    name: 'status',
+    enum: EnumStatusClaimMilesList,
+    required: false,
+    description: 'Filter by status',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'size',
+    type: Number,
+    required: false,
+    description: 'Pagination',
+  })
+  @ApiQuery({
+    name: 'size',
+    type: Number,
+    required: false,
+    description: 'Page size',
+  })
+  @ApiQuery({
+    name: 'by-user',
+    type: String,
+    required: false,
+    description: 'By user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Get list manual request successfully',
+    schema: GetListClaimMilesSchema,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+  })
+  @Get('/admin/claim-miles-manual')
+  @Roles(RoleBaseAccessControl.Admin)
+  getListManualRequestForAdmin(
+    // @UserIdDecorator() userId: string,
+    @Query('sort') sort?: EnumSortClaimMilesList,
+    @PagingDecorator() pagination?: PagingConfig,
+    @Query('by-user') byUser?: string,
+    @Query('status') status?: EnumStatusClaimMilesList,
+  ) {
+    const payload = {
+      sort: sort ?? EnumSortClaimMilesList.desc,
+      page: pagination?.page ?? 1,
+      size: pagination?.size ?? 10,
+      ...(status && { status }),
+      ...(byUser && { byUser }),
+      // ...(userId && { userId }),
+    };
+
+    // if (!userId) {
+    //   throw new Error('User ID is required');
+    // }
+
+    const data = this.loyaltyClient.send(
+      { cmd: MessagePatternForMicro.LOYALTY.GET_LIST_MANUAL_REQUEST_FOR_ADMIN },
       payload,
     );
 

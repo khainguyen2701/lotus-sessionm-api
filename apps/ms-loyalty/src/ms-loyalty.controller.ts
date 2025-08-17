@@ -35,4 +35,17 @@ export class MsLoyaltyController {
   ) {
     return await this.msLoyaltyService.getListManualRequest(query);
   }
+
+  @MessagePattern({
+    cmd: MessagePatternForMicro.LOYALTY.GET_LIST_MANUAL_REQUEST_FOR_ADMIN,
+  })
+  async getListManualRequestForAdmin(
+    query: {
+      status?: EnumStatusClaimMilesList;
+      sort?: EnumSortClaimMilesList;
+      byUser?: string;
+    } & PagingConfig,
+  ) {
+    return await this.msLoyaltyService.getListManualRequestForAdmin(query);
+  }
 }

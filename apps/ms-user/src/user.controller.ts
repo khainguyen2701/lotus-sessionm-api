@@ -1,6 +1,7 @@
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
 import { BadRequestException, Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
+import { EnumSortClaimMilesList } from 'apps/api-gateway/src/dto/claim';
 import { EditProfileDto } from './dto/edit-profile.dto';
 import { MemberProfileDto } from './dto/member-profile.dto';
 import { UploadFileDto, UploadFileResponse } from './dto/upload-file.dto';
@@ -73,5 +74,14 @@ export class UserController {
     } catch (error) {
       throw new BadRequestException(error?.message);
     }
+  }
+
+  @MessagePattern({ cmd: MessagePatternForMicro.USER.ADMIN_GET_LIST_MEMBER })
+  async adminGetListMember(query: {
+    page: number;
+    size: number;
+    sort?: EnumSortClaimMilesList;
+  }): Promise<any> {
+    return await this.userService.adminGetListMember(query);
   }
 }

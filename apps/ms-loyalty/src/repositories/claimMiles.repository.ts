@@ -198,6 +198,8 @@ export class ClaimMilesRepository {
           'user.id',
           'user.first_name',
           'user.last_name',
+          'user.user_name',
+          'user.user_number',
         ]);
 
       // Add status filter if provided
@@ -205,6 +207,91 @@ export class ClaimMilesRepository {
         queryBuilder.andWhere('manualPointsRequest.status = :status', {
           status,
         });
+      }
+
+      // Add sorting - sử dụng uploaded_at thay vì created_at
+      if (sort) {
+        switch (sort) {
+          case EnumSortClaimMilesList.asc:
+            queryBuilder.orderBy('manualPointsRequest.uploaded_at', 'ASC');
+            break;
+          case EnumSortClaimMilesList.desc:
+            queryBuilder.orderBy('manualPointsRequest.uploaded_at', 'DESC');
+            break;
+        }
+      } else {
+        // Default sort by newest
+        queryBuilder.orderBy('manualPointsRequest.uploaded_at', 'DESC');
+      }
+
+      // Add pagination
+      const skip = (page - 1) * size;
+      queryBuilder.skip(skip).take(size);
+
+      // Get total count for pagination
+      const [data, total] = await queryBuilder.getManyAndCount();
+
+      return {
+        data,
+        pagination: {
+          total,
+          page,
+          size,
+          totalPages: Math.ceil(total / size),
+        },
+      };
+    } catch (error) {
+      throw new Error(error?.message || 'Failed to get manual requests list');
+    }
+  }
+
+  // Get list manual request for admin
+  async getListManualRequestForAdmin(
+    query: {
+      status?: EnumStatusClaimMilesList;
+      sort?: EnumSortClaimMilesList;
+      byUser?: string;
+    } & PagingConfig,
+  ) {
+    try {
+      const { status, sort = 'desc', page = 1, size = 10, byUser } = query;
+
+      // Build base query with user relation filter
+      const queryBuilder = this.manualPointsRequestRepository
+        .createQueryBuilder('manualPointsRequest')
+        .leftJoinAndSelect('manualPointsRequest.user', 'user')
+        .select([
+          'manualPointsRequest.id',
+          'manualPointsRequest.request_type',
+          'manualPointsRequest.status',
+          'manualPointsRequest.points',
+          'manualPointsRequest.description',
+          'manualPointsRequest.ticket_number',
+          'manualPointsRequest.seat_code',
+          'manualPointsRequest.flight_code',
+          'manualPointsRequest.flight_departure_airport',
+          'manualPointsRequest.flight_arrival_airport',
+          'manualPointsRequest.flight_departure_date',
+          'manualPointsRequest.flight_arrival_date',
+          'manualPointsRequest.uploaded_at',
+          'manualPointsRequest.processed_at',
+          'manualPointsRequest.request_number',
+          'user.id',
+          'user.first_name',
+          'user.last_name',
+          'user.user_name',
+          'user.user_number',
+        ]);
+
+      // Add status filter if provided
+      if (status) {
+        queryBuilder.andWhere('manualPointsRequest.status = :status', {
+          status,
+        });
+      }
+
+      if (byUser) {
+        queryBuilder.andWhere('user.id = :byUser', { byUser });
       }
 
       // Add sorting - sử dụng uploaded_at thay vì created_at
