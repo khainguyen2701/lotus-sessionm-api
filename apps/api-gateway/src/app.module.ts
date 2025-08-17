@@ -9,6 +9,7 @@ import { AppService } from './app.service';
 import { UsersController } from './controllers/user.controller';
 import { AuthController } from './controllers/auth.controller';
 import { RewardController } from './controllers/reward.controller';
+import { LoyaltyController } from './controllers/loyalty.controller';
 
 @Module({
   imports: [
@@ -56,7 +57,12 @@ import { RewardController } from './controllers/reward.controller';
       },
     ]),
   ],
-  controllers: [UsersController, AuthController, RewardController],
+  controllers: [
+    UsersController,
+    AuthController,
+    RewardController,
+    LoyaltyController,
+  ],
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: HybridAuthGuard },

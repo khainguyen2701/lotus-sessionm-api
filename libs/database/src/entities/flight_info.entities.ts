@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 
 enum ClassTicket {
   ECONOMY = 'economy',
@@ -9,6 +9,11 @@ enum ClassTicket {
 @Entity({
   name: 'flight_info',
 })
+@Index('idx_flight_info_ticket_number', ['ticket_number'])
+@Index('idx_flight_info_seat_code', ['seat_code'])
+@Index('idx_flight_info_ticket_seat', ['ticket_number', 'seat_code'])
+@Index('idx_flight_info_departure_date', ['flight_departure_date'])
+@Index('idx_flight_info_class_ticket', ['class_ticket'])
 export class FlightInfoEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

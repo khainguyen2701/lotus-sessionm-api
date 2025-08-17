@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@app/database';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as entities from '@app/database/entities';
+import { ClaimMilesRepository } from './repositories/claimMiles.repository';
 
 @Module({
   imports: [
@@ -15,6 +16,6 @@ import * as entities from '@app/database/entities';
     TypeOrmModule.forFeature(Object.values(entities)),
   ],
   controllers: [MsLoyaltyController],
-  providers: [MsLoyaltyService],
+  providers: [MsLoyaltyService, ClaimMilesRepository],
 })
 export class MsLoyaltyModule {}
