@@ -171,4 +171,10 @@ export class ManualPointsRequestEntity {
     default: 'VNA',
   })
   request_number: string;
+
+  @Column({
+    type: 'text',
+    default: 'VNA',
+  })
+  invoice_number: string;
 }

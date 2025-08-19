@@ -11,7 +11,7 @@ export class TierRepository {
     @InjectRepository(TiersEntity)
     private tierRepository: Repository<TiersEntity>,
   ) {}
-  async createTier(body: BodyCreateTierDTO): Promise<TiersEntity> {
+  async createTier(body: BodyCreateTierDTO): Promise<any> {
     try {
       const tier = await this.tierRepository.save(body);
       return tier;

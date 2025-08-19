@@ -15,6 +15,9 @@ export const MessagePatternForMicro = {
     EDIT_PROFILE: 'user.edit_profile',
     UPLOAD_FILE: 'user.upload_file',
     ADMIN_GET_LIST_MEMBER: 'admin.get_list_user',
+    // Admin endpoints
+    ADMIN_USERS_OVERVIEW: 'user.admin.users_overview',
+    ADMIN_USERS_TIMESERIES: 'user.admin.users_timeseries',
   },
   REWARDS: {
     GET_ALL: 'rewards.get_rewards',
@@ -31,5 +34,9 @@ export const MessagePatternForMicro = {
     GET_LIST_MANUAL_REQUEST: 'loyalty.get_list_manual_request',
     GET_LIST_MANUAL_REQUEST_FOR_ADMIN:
       'loyalty.get_list_manual_request_for_admin',
+    // Admin endpoints
+    ADMIN_OVERVIEW: 'loyalty.admin.overview',
+    ADMIN_TIMESERIES: 'loyalty.admin.timeseries',
+    ADMIN_PROCESSING_SPEED: 'loyalty.admin.processing_speed',
   },
 };

@@ -1,5 +1,10 @@
 import { PagingConfig } from '@app/common/decorators/paging.decorators';
 import { CreateManualRequestDTO } from '@app/common/dto/ms-loyalty/manual-request.dto';
+import {
+  OverviewQueryDto,
+  TimeseriesQueryDto,
+  ProcessingSpeedQueryDto,
+} from '@app/common/dto/ms-loyalty/admin.dto';
 import { Injectable } from '@nestjs/common';
 import {
   EnumSortClaimMilesList,
@@ -35,5 +40,18 @@ export class MsLoyaltyService {
     } & PagingConfig,
   ) {
     return await this.claimMilesRepository.getListManualRequestForAdmin(query);
+  }
+
+  // Admin endpoints
+  async getOverview(query: OverviewQueryDto) {
+    return await this.claimMilesRepository.getOverview(query);
+  }
+
+  async getTimeseries(query: TimeseriesQueryDto) {
+    return await this.claimMilesRepository.getTimeseries(query);
+  }
+
+  async getProcessingSpeed(query: ProcessingSpeedQueryDto) {
+    return await this.claimMilesRepository.getProcessingSpeed(query);
   }
 }

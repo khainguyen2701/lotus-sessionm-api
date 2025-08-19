@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { RoleBaseAccessControl } from '@app/common/constant/index.constant';
 import {
@@ -30,6 +31,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+
 import { EnumSortClaimMilesList } from '../dto/claim';
 import {
   EditProfileDto,

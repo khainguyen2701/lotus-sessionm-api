@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { GitHubService } from '@app/common';
+import {
+  UsersOverviewQueryDto,
+  UsersTimeseriesQueryDto,
+} from '@app/common/dto/ms-user/admin.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnumSortClaimMilesList } from 'apps/api-gateway/src/dto/claim';
@@ -146,5 +150,14 @@ export class UserService {
     sort?: EnumSortClaimMilesList;
   }): Promise<any> {
     return await this.userRepo.adminGetListMember(query);
+  }
+
+  // Admin endpoints
+  async getUsersOverview(query: UsersOverviewQueryDto) {
+    return await this.userRepo.getUsersOverview(query);
+  }
+
+  async getUsersTimeseries(query: UsersTimeseriesQueryDto) {
+    return await this.userRepo.getUsersTimeseries(query);
   }
 }

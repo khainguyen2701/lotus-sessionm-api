@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsObject, IsString } from 'class-validator';
 
 export class BodyCreateTierDTO {
   @ApiProperty({
     description: 'Tier name',
     example: 'gold',
-    enum: ['silver', 'bronze', 'gold'],
+    enum: ['silver', 'bronze', 'gold', 'member'],
   })
   @IsNotEmpty()
   @IsString()
@@ -21,12 +21,24 @@ export class BodyCreateTierDTO {
 
   @ApiProperty({
     description: 'Tier benefits',
-    example: ['Priority boarding', 'Extra baggage allowance', 'Lounge access'],
-    type: [String],
+    example: [
+      {
+        en: 'Priority boarding',
+        vi: 'Xin chào',
+      },
+    ],
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        en: { type: 'string' },
+        vi: { type: 'string' },
+      },
+    },
   })
   @IsNotEmpty()
-  @IsString({ each: true })
-  benefit: string[];
+  @IsObject({ each: true })
+  benefit: { en: string; vi: string }[];
 
   @ApiProperty({
     description: 'Minimum points required for this tier',

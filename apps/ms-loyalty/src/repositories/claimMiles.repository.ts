@@ -1,6 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { PagingConfig } from '@app/common/decorators/paging.decorators';
+import {
+  BucketType,
+  DateField,
+  OverviewQueryDto,
+  ProcessingSpeedQueryDto,
+  RequestStatus,
+  TimeseriesQueryDto,
+} from '@app/common/dto/ms-loyalty/admin.dto';
 import { CreateManualRequestDTO } from '@app/common/dto/ms-loyalty/manual-request.dto';
 import { calculatePointsByDistance } from '@app/common/utils/caculatePointsByDistane';
 import {
@@ -55,56 +64,89 @@ export class ClaimMilesRepository {
         throw new Error('User not found');
       }
 
-      // Tìm flight info để validate
-      const flight = await this.findFlightInfoBySomeFields(
-        ticket_number,
-        seat_code,
-      );
-
-      if (!flight) {
-        throw new Error('Flight information not found');
-      }
-
-      const points = calculatePointsByDistance({
-        request_type,
-        distance_km: flight?.distance,
-        classTicket: flight?.class_ticket,
-        amount,
-      });
-
-      // Tạo manual request với flight info và user relation
-      const manualRequest = queryRunner.manager.create(
-        ManualPointsRequestEntity,
-        {
-          user: user, // Set user relation
-          description,
-          file_url,
-          request_type,
-          seat_code,
+      if (request_type === 'flight') {
+        // Tìm flight info để validate
+        const flight = await this.findFlightInfoBySomeFields(
           ticket_number,
-          status: 'processing', // Sử dụng enum value đúng
-          // Copy flight info vào manual request
-          flight_code: flight?.flight || '',
-          flight_departure_airport: flight?.flight_departure_airport || '',
-          flight_arrival_airport: flight?.flight_arrival_airport || '',
-          flight_departure_date: flight?.flight_departure_date || '',
-          flight_arrival_date: flight?.flight_arrival_date || '',
-          distance: flight?.distance || 0,
-          seat_class: flight?.class_ticket || '',
-          flight_airline: flight.flight, // Default airline
-          request_number: `REQ-${Date.now()}`, // Generate unique request number
-          uploaded_at: new Date(),
-          processed_at: new Date(),
-          points: points?.points_awarded ?? 0,
-        },
-      );
+          seat_code,
+        );
 
-      const savedRequest = await queryRunner.manager.save(manualRequest);
+        if (!flight) {
+          throw new Error('Flight information not found');
+        }
 
-      // Commit transaction
-      await queryRunner.commitTransaction();
+        const points = calculatePointsByDistance({
+          request_type,
+          distance_km: flight?.distance,
+          classTicket: flight?.class_ticket,
+          amount,
+        });
 
-      return savedRequest;
+        // Tạo manual request với flight info và user relation
+        const manualRequest = queryRunner.manager.create(
+          ManualPointsRequestEntity,
+          {
+            user: user, // Set user relation
+            description,
+            file_url,
+            request_type,
+            seat_code,
+            ticket_number,
+            status: 'processing', // Sử dụng enum value đúng
+            // Copy flight info vào manual request
+            flight_code: flight?.flight || '',
+            flight_departure_airport: flight?.flight_departure_airport || '',
+            flight_arrival_airport: flight?.flight_arrival_airport || '',
+            flight_departure_date: flight?.flight_departure_date || '',
+            flight_arrival_date: flight?.flight_arrival_date || '',
+            distance: flight?.distance || 0,
+            seat_class: flight?.class_ticket || '',
+            flight_airline: flight.flight, // Default airline
+            request_number: `REQ-${Date.now()}`, // Generate unique request number
+            uploaded_at: new Date(),
+            processed_at: new Date(),
+            points: points?.points_awarded ?? 0,
+          },
+        );
+
+        const savedRequest = await queryRunner.manager.save(manualRequest);
+
+        // Commit transaction
+        await queryRunner.commitTransaction();
+
+        return savedRequest;
+      } else {
+        const points = calculatePointsByDistance({
+          request_type,
+          amount,
+        });
+
+        // Tạo manual request với flight info và user relation
+        const manualRequest = queryRunner.manager.create(
+          ManualPointsRequestEntity,
+          {
+            user: user, // Set user relation
+            description,
+            file_url,
+            request_type,
+            ticket_number,
+            status: 'processing', // Sử dụng enum value đúng
+            // Copy flight info vào manual request
+            request_number: `REQ-${Date.now()}`, // Generate unique request number
+            uploaded_at: new Date(),
+            processed_at: new Date(),
+            points: points?.points_awarded ?? 0,
+            invoice_number: ticket_number,
+          },
+        );
+
+        const savedRequest = await queryRunner.manager.save(manualRequest);
+
+        // Commit transaction
+        await queryRunner.commitTransaction();
+
+        return savedRequest;
+      }
     } catch (error) {
       // Rollback transaction on error
       await queryRunner.rollbackTransaction();
@@ -327,6 +369,417 @@ export class ClaimMilesRepository {
       };
     } catch (error) {
       throw new Error(error?.message || 'Failed to get manual requests list');
+    }
+  }
+
+  // Admin Overview
+  async getOverview(query: OverviewQueryDto) {
+    try {
+      const {
+        from,
+        to,
+        tz = 'UTC',
+        status,
+        request_type,
+        date_field = DateField.UPLOADED,
+      } = query;
+
+      // Set default date range (last 7 days) if not provided
+      const endDate = to ? new Date(to) : new Date();
+      const startDate = from
+        ? new Date(from)
+        : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+      // Build base query
+      let baseQuery =
+        this.manualPointsRequestRepository.createQueryBuilder('request');
+
+      // Apply date filter based on date_field
+      const dateColumn =
+        date_field === DateField.PROCESSED ? 'processed_at' : 'uploaded_at';
+      baseQuery = baseQuery.where(
+        `request.${dateColumn} >= :startDate AND request.${dateColumn} <= :endDate`,
+        {
+          startDate,
+          endDate,
+        },
+      );
+
+      // Apply status filter
+      if (status && status.length > 0) {
+        baseQuery = baseQuery.andWhere('request.status IN (:...status)', {
+          status,
+        });
+      }
+
+      // Apply request_type filter
+      if (request_type && request_type.length > 0) {
+        baseQuery = baseQuery.andWhere(
+          'request.request_type IN (:...request_type)',
+          { request_type },
+        );
+      }
+
+      // Get counts by status
+      const statusCounts = await baseQuery
+        .select('request.status', 'status')
+        .addSelect('COUNT(*)', 'count')
+        .groupBy('request.status')
+        .getRawMany();
+
+      // Get total miles for approved requests
+      const totalMilesResult = await baseQuery
+        .andWhere('request.status = :approvedStatus', {
+          approvedStatus: RequestStatus.PROCESSED,
+        })
+        .select('SUM(request.points)', 'total_miles')
+        .getRawOne();
+
+      // Initialize counts
+      const counts = {
+        pending: 0,
+        approved: 0,
+        rejected: 0,
+        processing: 0,
+      };
+
+      // Map status counts
+      statusCounts.forEach((item) => {
+        if (item.status in counts) {
+          counts[item.status] = parseInt(item.count, 10);
+        }
+      });
+
+      // Calculate delta (vs yesterday and vs week)
+      const delta = await this.calculateDelta(query);
+
+      return {
+        pending: counts.pending,
+        approved: counts.approved,
+        rejected: counts.rejected,
+        total_miles: parseInt(totalMilesResult?.total_miles || '0', 10),
+        delta,
+      };
+    } catch (error) {
+      throw new Error(error?.message || 'Failed to get overview data');
+    }
+  }
+
+  // Calculate delta for overview
+  private async calculateDelta(query: OverviewQueryDto) {
+    const { date_field = DateField.UPLOADED, status, request_type } = query;
+    const dateColumn =
+      date_field === DateField.PROCESSED ? 'processed_at' : 'uploaded_at';
+
+    const now = new Date();
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const dayBeforeYesterday = new Date(
+      now.getTime() - 2 * 24 * 60 * 60 * 1000,
+    );
+
+    const thisWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const lastWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const lastWeekEnd = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    // Build base query for delta calculations
+    const buildDeltaQuery = (
+      startDate: Date,
+      endDate: Date,
+      targetStatus?: string,
+    ) => {
+      let query = this.manualPointsRequestRepository
+        .createQueryBuilder('request')
+        .where(
+          `request.${dateColumn} >= :startDate AND request.${dateColumn} <= :endDate`,
+          {
+            startDate,
+            endDate,
+          },
+        );
+
+      if (targetStatus) {
+        query = query.andWhere('request.status = :status', {
+          status: targetStatus,
+        });
+      }
+
+      if (status && status.length > 0) {
+        query = query.andWhere('request.status IN (:...statusFilter)', {
+          statusFilter: status,
+        });
+      }
+
+      if (request_type && request_type.length > 0) {
+        query = query.andWhere('request.request_type IN (:...request_type)', {
+          request_type,
+        });
+      }
+
+      return query.getCount();
+    };
+
+    // Calculate yesterday vs day before yesterday for pending
+    const [pendingYesterday, pendingDayBefore] = await Promise.all([
+      buildDeltaQuery(yesterday, now, RequestStatus.PROCESSING),
+      buildDeltaQuery(dayBeforeYesterday, yesterday, RequestStatus.PROCESSING),
+    ]);
+
+    // Calculate this week vs last week for approved and rejected
+    const [
+      approvedThisWeek,
+      approvedLastWeek,
+      rejectedThisWeek,
+      rejectedLastWeek,
+    ] = await Promise.all([
+      buildDeltaQuery(thisWeekStart, now, RequestStatus.PROCESSED),
+      buildDeltaQuery(lastWeekStart, lastWeekEnd, RequestStatus.PROCESSED),
+      buildDeltaQuery(thisWeekStart, now, RequestStatus.REJECTED),
+      buildDeltaQuery(lastWeekStart, lastWeekEnd, RequestStatus.REJECTED),
+    ]);
+
+    return {
+      pending_vs_yesterday: pendingYesterday - pendingDayBefore,
+      approved_vs_week: approvedThisWeek - approvedLastWeek,
+      rejected_vs_week: rejectedThisWeek - rejectedLastWeek,
+    };
+  }
+
+  // Admin Timeseries
+  async getTimeseries(query: TimeseriesQueryDto) {
+    try {
+      const {
+        from,
+        to,
+        tz = 'UTC',
+        bucket = BucketType.DAY,
+        request_type,
+      } = query;
+
+      // Set default date range (last 7 days) if not provided
+      const endDate = to ? new Date(to) : new Date();
+      const startDate = from
+        ? new Date(from)
+        : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+      // Get bucket format for PostgreSQL
+      const bucketFormat = this.getBucketFormat(bucket);
+
+      // Build base query with timezone conversion
+      const buildTimeseriesQuery = (
+        dateColumn: string,
+        statusFilter?: string,
+        sumPoints = false,
+      ) => {
+        let query = this.manualPointsRequestRepository
+          .createQueryBuilder('request')
+          .select(
+            `DATE_TRUNC('${bucket}', ${dateColumn} AT TIME ZONE '${tz}')`,
+            'ts',
+          );
+
+        if (sumPoints) {
+          query = query.addSelect('SUM(request.points)', 'sum_points');
+        } else {
+          query = query.addSelect('COUNT(*)', 'count');
+        }
+
+        query = query.where(
+          `${dateColumn} >= :startDate AND ${dateColumn} <= :endDate`,
+          {
+            startDate,
+            endDate,
+          },
+        );
+
+        if (statusFilter) {
+          query = query.andWhere('request.status = :status', {
+            status: statusFilter,
+          });
+        }
+
+        if (request_type && request_type.length > 0) {
+          query = query.andWhere('request.request_type IN (:...request_type)', {
+            request_type,
+          });
+        }
+
+        return query.groupBy('ts').orderBy('ts', 'ASC').getRawMany();
+      };
+
+      // Get new requests (based on uploaded_at)
+      const newRequestsData = await buildTimeseriesQuery('request.uploaded_at');
+
+      // Get processed requests (based on processed_at with approved/rejected status)
+      const processedData = await this.manualPointsRequestRepository
+        .createQueryBuilder('request')
+        .select(
+          `DATE_TRUNC('${bucket}', request.processed_at AT TIME ZONE '${tz}')`,
+          'ts',
+        )
+        .addSelect('COUNT(*)', 'count')
+        .where(
+          'request.processed_at >= :startDate AND request.processed_at <= :endDate',
+          {
+            startDate,
+            endDate,
+          },
+        )
+        .andWhere('request.status IN (:...processedStatuses)', {
+          processedStatuses: [RequestStatus.PROCESSED, RequestStatus.REJECTED],
+        })
+        .andWhere(
+          request_type && request_type.length > 0
+            ? 'request.request_type IN (:...request_type)'
+            : '1=1',
+          request_type && request_type.length > 0 ? { request_type } : {},
+        )
+        .groupBy('ts')
+        .orderBy('ts', 'ASC')
+        .getRawMany();
+
+      // Get miles credited (approved requests with sum of points)
+      const milesCreditedData = await this.manualPointsRequestRepository
+        .createQueryBuilder('request')
+        .select(
+          `DATE_TRUNC('${bucket}', request.processed_at AT TIME ZONE '${tz}')`,
+          'ts',
+        )
+        .addSelect('SUM(request.points)', 'sum_points')
+        .where(
+          'request.processed_at >= :startDate AND request.processed_at <= :endDate',
+          {
+            startDate,
+            endDate,
+          },
+        )
+        .andWhere('request.status = :approvedStatus', {
+          approvedStatus: RequestStatus.PROCESSED,
+        })
+        .andWhere(
+          request_type && request_type.length > 0
+            ? 'request.request_type IN (:...request_type)'
+            : '1=1',
+          request_type && request_type.length > 0 ? { request_type } : {},
+        )
+        .groupBy('ts')
+        .orderBy('ts', 'ASC')
+        .getRawMany();
+
+      // Format response
+      const formatTimeseries = (data: any[], isPoints = false) => {
+        return data.map((item) => ({
+          ts: item.ts.toISOString().split('T')[0], // Format as YYYY-MM-DD
+          ...(isPoints
+            ? { sum_points: parseInt(item.sum_points || '0', 10) }
+            : { count: parseInt(item.count || '0', 10) }),
+        }));
+      };
+
+      return {
+        new_requests: formatTimeseries(newRequestsData),
+        processed: formatTimeseries(processedData),
+        miles_credited: formatTimeseries(milesCreditedData, true),
+      };
+    } catch (error) {
+      throw new Error(error?.message || 'Failed to get timeseries data');
+    }
+  }
+
+  // Admin Processing Speed
+  async getProcessingSpeed(query: ProcessingSpeedQueryDto) {
+    try {
+      const {
+        from,
+        to,
+        tz = 'UTC',
+        bins = [6, 12, 18, 24, 30, 36, 42],
+        request_type,
+      } = query;
+
+      // Set default date range (last 30 days) if not provided
+      const endDate = to ? new Date(to) : new Date();
+      const startDate = from
+        ? new Date(from)
+        : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+      // Get processing times for completed requests
+      const processingTimesQuery = this.manualPointsRequestRepository
+        .createQueryBuilder('request')
+        .select(
+          'EXTRACT(EPOCH FROM (request.processed_at - request.uploaded_at)) / 3600',
+          'processing_hours',
+        )
+        .where(
+          'request.uploaded_at >= :startDate AND request.uploaded_at <= :endDate',
+          {
+            startDate,
+            endDate,
+          },
+        )
+        .andWhere('request.status IN (:...completedStatuses)', {
+          completedStatuses: [RequestStatus.PROCESSED, RequestStatus.REJECTED],
+        })
+        .andWhere('request.processed_at IS NOT NULL');
+
+      // Add request_type filter if provided
+      if (request_type && request_type.length > 0) {
+        processingTimesQuery.andWhere(
+          'request.request_type IN (:...request_type)',
+          { request_type },
+        );
+      }
+
+      const processingTimes = await processingTimesQuery.getRawMany();
+
+      // Calculate cumulative percentages for each bin
+      const totalRequests = processingTimes.length;
+      const cumulativePercent = bins.map((bin) => {
+        const requestsWithinBin = processingTimes.filter(
+          (item) => parseFloat(item.processing_hours) <= bin,
+        ).length;
+        return totalRequests > 0
+          ? (requestsWithinBin / totalRequests) * 100
+          : 0;
+      });
+
+      // Calculate percentiles
+      const sortedTimes = processingTimes
+        .map((item) => parseFloat(item.processing_hours))
+        .sort((a, b) => a - b);
+
+      const getPercentile = (percentile: number) => {
+        if (sortedTimes.length === 0) return 0;
+        const index = Math.ceil((percentile / 100) * sortedTimes.length) - 1;
+        return sortedTimes[Math.max(0, index)] || 0;
+      };
+
+      const percentiles = {
+        p50: getPercentile(50),
+        p90: getPercentile(90),
+        p95: getPercentile(95),
+      };
+
+      return {
+        bins,
+        cumulative_percent: cumulativePercent,
+        percentiles,
+      };
+    } catch (error) {
+      throw new Error(error?.message || 'Failed to get processing speed data');
+    }
+  }
+
+  // Get bucket format for PostgreSQL DATE_TRUNC
+  private getBucketFormat(bucket: BucketType): string {
+    switch (bucket) {
+      case BucketType.DAY:
+        return 'day';
+      case BucketType.WEEK:
+        return 'week';
+      case BucketType.MONTH:
+        return 'month';
+      default:
+        return 'day';
     }
   }
 }

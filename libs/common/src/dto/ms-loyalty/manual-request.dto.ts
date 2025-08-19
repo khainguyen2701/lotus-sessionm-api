@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 
 export class CreateManualRequestDTO {
   @ApiProperty({
@@ -40,12 +46,16 @@ export class CreateManualRequestDTO {
   file_url: string;
 
   @ApiProperty({
-    description: 'Seat code',
+    description:
+      'Seat code - required for flight requests, optional for others',
     default: 'A1',
+    required: false,
   })
-  @IsNotEmpty()
+  @ValidateIf((o) => o.request_type === 'flight')
+  @IsNotEmpty({ message: 'Seat code is required for flight requests' })
+  @IsOptional()
   @IsString()
-  seat_code: string;
+  seat_code?: string;
 
   @ApiProperty({
     description: 'Amount - this is optional field',

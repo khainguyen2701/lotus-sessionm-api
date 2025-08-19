@@ -1,4 +1,9 @@
 import { CreateManualRequestDTO } from '@app/common/dto/ms-loyalty/manual-request.dto';
+import {
+  OverviewQueryDto,
+  TimeseriesQueryDto,
+  ProcessingSpeedQueryDto,
+} from '@app/common/dto/ms-loyalty/admin.dto';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
@@ -47,5 +52,27 @@ export class MsLoyaltyController {
     } & PagingConfig,
   ) {
     return await this.msLoyaltyService.getListManualRequestForAdmin(query);
+  }
+
+  // Admin endpoints
+  @MessagePattern({
+    cmd: MessagePatternForMicro.LOYALTY.ADMIN_OVERVIEW,
+  })
+  async getAdminOverview(query: OverviewQueryDto) {
+    return await this.msLoyaltyService.getOverview(query);
+  }
+
+  @MessagePattern({
+    cmd: MessagePatternForMicro.LOYALTY.ADMIN_TIMESERIES,
+  })
+  async getAdminTimeseries(query: TimeseriesQueryDto) {
+    return await this.msLoyaltyService.getTimeseries(query);
+  }
+
+  @MessagePattern({
+    cmd: MessagePatternForMicro.LOYALTY.ADMIN_PROCESSING_SPEED,
+  })
+  async getAdminProcessingSpeed(query: ProcessingSpeedQueryDto) {
+    return await this.msLoyaltyService.getProcessingSpeed(query);
   }
 }

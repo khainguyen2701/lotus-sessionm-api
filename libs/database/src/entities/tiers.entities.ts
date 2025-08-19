@@ -9,8 +9,8 @@ export class TiersEntity {
   @Column({
     type: 'enum',
     name: 'tier_name',
-    enum: ['silver', 'bronze', 'gold'],
-    default: 'bronze',
+    enum: ['silver', 'bronze', 'gold', 'member'],
+    default: 'member',
     unique: true,
   })
   tier_name: string;
@@ -50,7 +50,10 @@ export class TiersEntity {
     name: 'benefit',
     nullable: true,
   })
-  benefit: string[];
+  benefit: {
+    en: string;
+    vi: string;
+  }[];
 
   @Column({
     type: 'enum',
