@@ -52,7 +52,7 @@ export class AdminClaimMilesManualOverviewDto {
       processing: 12,
       total_miles: 0,
       delta: {
-        pending_vs_yesterday: -12,
+        processing_vs_yesterday: -12,
         approved_vs_week: 0,
         rejected_vs_week: 0,
       },
@@ -178,7 +178,7 @@ export class AdminDashboardOverviewDto {
         processing: 12,
         total_miles: 0,
         delta: {
-          pending_vs_yesterday: -12,
+          processing_vs_yesterday: -12,
           approved_vs_week: 0,
           rejected_vs_week: 0,
         },

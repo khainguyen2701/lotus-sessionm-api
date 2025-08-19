@@ -152,7 +152,7 @@ export class ProcessingSpeedQueryDto extends BaseAdminQueryDto {
 // Response DTOs
 export class DeltaDto {
   @ApiProperty({ description: 'Change vs yesterday' })
-  pending_vs_yesterday: number;
+  processing_vs_yesterday: number;
 
   @ApiProperty({ description: 'Approved change vs last week' })
   approved_vs_week: number;

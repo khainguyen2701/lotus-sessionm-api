@@ -437,8 +437,7 @@ export class ClaimMilesRepository {
 
       // Initialize counts
       const counts = {
-        pending: 0,
-        approved: 0,
+        processed: 0,
         rejected: 0,
         processing: 0,
       };
@@ -454,9 +453,9 @@ export class ClaimMilesRepository {
       const delta = await this.calculateDelta(query);
 
       return {
-        pending: counts.pending,
-        approved: counts.approved,
+        processed: counts.processed,
         rejected: counts.rejected,
+        processing: counts.processing,
         total_miles: parseInt(totalMilesResult?.total_miles || '0', 10),
         delta,
       };
@@ -538,7 +537,7 @@ export class ClaimMilesRepository {
     ]);
 
     return {
-      pending_vs_yesterday: pendingYesterday - pendingDayBefore,
+      processing_vs_yesterday: pendingYesterday - pendingDayBefore,
       approved_vs_week: approvedThisWeek - approvedLastWeek,
       rejected_vs_week: rejectedThisWeek - rejectedLastWeek,
     };
@@ -730,6 +729,8 @@ export class ClaimMilesRepository {
       }
 
       const processingTimes = await processingTimesQuery.getRawMany();
+
+      console.log('processingTimes', processingTimes);
 
       // Calculate cumulative percentages for each bin
       const totalRequests = processingTimes.length;
