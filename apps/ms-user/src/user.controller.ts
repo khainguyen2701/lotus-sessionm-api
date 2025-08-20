@@ -85,6 +85,7 @@ export class UserController {
     page: number;
     size: number;
     sort?: EnumSortClaimMilesList;
+    search?: string;
   }): Promise<any> {
     return await this.userService.adminGetListMember(query);
   }

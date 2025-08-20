@@ -215,6 +215,12 @@ export class LoyaltyController {
     required: false,
     description: 'By user',
   })
+  @ApiQuery({
+    name: 'user_name',
+    type: String,
+    required: false,
+    description: 'By user name',
+  })
   @ApiResponse({
     status: 200,
     description: 'Get list manual request successfully',
@@ -229,6 +235,7 @@ export class LoyaltyController {
   getListManualRequestForAdmin(
     // @UserIdDecorator() userId: string,
     @Query('sort') sort?: EnumSortClaimMilesList,
+    @Query('user_name') userName?: string,
     @PagingDecorator() pagination?: PagingConfig,
     @Query('by-user') byUser?: string,
     @Query('status') status?: EnumStatusClaimMilesList,
@@ -239,6 +246,7 @@ export class LoyaltyController {
       size: pagination?.size ?? 10,
       ...(status && { status }),
       ...(byUser && { byUser }),
+      ...(userName && { userName }),
       // ...(userId && { userId }),
     };
 

@@ -293,10 +293,18 @@ export class ClaimMilesRepository {
       status?: EnumStatusClaimMilesList;
       sort?: EnumSortClaimMilesList;
       byUser?: string;
+      userName?: string;
     } & PagingConfig,
   ) {
     try {
-      const { status, sort = 'desc', page = 1, size = 10, byUser } = query;
+      const {
+        status,
+        sort = 'desc',
+        page = 1,
+        size = 10,
+        byUser,
+        userName,
+      } = query;
 
       // Build base query with user relation filter
       const queryBuilder = this.manualPointsRequestRepository
@@ -334,6 +342,12 @@ export class ClaimMilesRepository {
 
       if (byUser) {
         queryBuilder.andWhere('user.id = :byUser', { byUser });
+      }
+
+      if (userName) {
+        queryBuilder.andWhere('user.user_name LIKE :userName', {
+          userName: `%${userName}%`,
+        });
       }
 
       // Add sorting - sử dụng uploaded_at thay vì created_at

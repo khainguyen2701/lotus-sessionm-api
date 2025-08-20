@@ -49,6 +49,7 @@ export class MsLoyaltyController {
       status?: EnumStatusClaimMilesList;
       sort?: EnumSortClaimMilesList;
       byUser?: string;
+      userName?: string;
     } & PagingConfig,
   ) {
     return await this.msLoyaltyService.getListManualRequestForAdmin(query);

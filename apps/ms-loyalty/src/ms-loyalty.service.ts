@@ -37,6 +37,7 @@ export class MsLoyaltyService {
       status?: EnumStatusClaimMilesList;
       sort?: EnumSortClaimMilesList;
       byUser?: string;
+      userName?: string;
     } & PagingConfig,
   ) {
     return await this.claimMilesRepository.getListManualRequestForAdmin(query);

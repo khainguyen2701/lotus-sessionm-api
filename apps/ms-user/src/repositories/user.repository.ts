@@ -132,15 +132,25 @@ export class UserRepository {
     page: number;
     size: number;
     sort?: EnumSortClaimMilesList;
+    search?: string;
   }): Promise<any> {
     try {
-      const { page = 1, size = 10, sort = 'desc' } = query;
+      const { page = 1, size = 10, sort = 'desc', search } = query;
       const queryBuild = this.userEntities
         .createQueryBuilder('user')
-        .where('user.user_type = :user_type', { user_type: 'user' })
         .leftJoinAndSelect('user.tier', 'tier')
         .leftJoinAndSelect('user.points', 'points')
+        .where('user.user_type = :user_type', { user_type: 'user' });
+
+      if (search) {
+        queryBuild.andWhere(
+          '(user.user_name ILIKE :search OR user.user_email ILIKE :search OR user.user_number ILIKE :search)',
+          { search: `${search}%` }, // Prefix search for better index usage
+        );
+      }
+      queryBuild
         .orderBy('user.created_at', sort.toUpperCase() as any)
+        .addOrderBy('user.user_name', 'ASC') // Secondary sort only
         .skip((page - 1) * size)
         .take(size);
 

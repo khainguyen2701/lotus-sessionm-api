@@ -148,6 +148,7 @@ export class UserService {
     page: number;
     size: number;
     sort?: EnumSortClaimMilesList;
+    search?: string;
   }): Promise<any> {
     return await this.userRepo.adminGetListMember(query);
   }

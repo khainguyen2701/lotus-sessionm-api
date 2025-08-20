@@ -338,6 +338,12 @@ export class UsersController {
     required: false,
     description: 'Page size',
   })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    required: false,
+    description: 'Search by user name, email, id',
+  })
   @ApiResponse({
     status: 200,
     description: 'Get list user successfully',
@@ -351,12 +357,14 @@ export class UsersController {
   @Roles(RoleBaseAccessControl.Admin)
   adminGetListMember(
     @Query('sort') sort?: EnumSortClaimMilesList,
+    @Query('search') search?: string,
     @PagingDecorator() pagination?: PagingConfig,
   ) {
     const payload = {
       page: pagination?.page ?? 1,
       size: pagination?.size ?? 10,
       ...(sort && { sort }),
+      ...(search && { search }),
     };
     return this.userClient.send(
       { cmd: MessagePatternForMicro.USER.ADMIN_GET_LIST_MEMBER },
