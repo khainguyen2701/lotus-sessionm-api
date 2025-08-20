@@ -41,5 +41,7 @@ export const MessagePatternForMicro = {
     GET_MANUAL_REQUEST_DETAIL: 'loyalty.get_manual_request_detail',
     GET_MANUAL_REQUEST_DETAIL_FOR_ADMIN:
       'loyalty.get_manual_request_detail_for_admin',
+    CHANGE_STATUS_MANUAL_REQUEST_FOR_ADMIN:
+      'loyalty.change_status_manual_request_for_admin',
   },
 };

@@ -15,6 +15,9 @@ import { calculatePointsByDistance } from '@app/common/utils/caculatePointsByDis
 import {
   FlightInfoEntity,
   ManualPointsRequestEntity,
+  PointsEntity,
+  PointTransactionsEntity,
+  SyncLogEntity,
   UsersEntity,
 } from '@app/database';
 import { Injectable } from '@nestjs/common';
@@ -909,6 +912,127 @@ export class ClaimMilesRepository {
     } catch (error) {
       console.log('get Manual Request Detail For Admin', error);
       throw new Error(error?.message || 'Failed to get manual request detail');
+    }
+  }
+
+  // Change status manual request for admin
+  async changeStatusManualRequestForAdmin(data: {
+    id: string;
+    status: EnumStatusClaimMilesList;
+    userId: string;
+  }): Promise<any> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const { id, status, userId } = data;
+
+      // Get the manual request first to get points info
+      const manualRequest = await queryRunner.manager.findOne(
+        ManualPointsRequestEntity,
+        {
+          where: { id },
+          relations: ['user'],
+        },
+      );
+
+      if (!manualRequest) {
+        throw new Error('Manual request not found');
+      }
+
+      if (
+        [
+          EnumStatusClaimMilesList.rejected,
+          EnumStatusClaimMilesList.processed,
+        ].includes(manualRequest?.status as any)
+      ) {
+        throw new Error('Manual request status is not processing');
+      }
+
+      // Update manual request status
+      const updateResult = await queryRunner.manager.update(
+        ManualPointsRequestEntity,
+        { id },
+        {
+          status,
+          processed_at: new Date(),
+          processed_by: { id: userId },
+        },
+      );
+
+      if (!updateResult.affected) {
+        throw new Error('Failed to update manual request status');
+      }
+
+      if (status === EnumStatusClaimMilesList.rejected) {
+        // For rejected status, just update and commit
+        await queryRunner.commitTransaction();
+        return {};
+      }
+
+      if (status === EnumStatusClaimMilesList.processed) {
+        // Create points transaction record using PointTransactionsEntity
+        const pointsTransaction = queryRunner.manager.create(
+          PointTransactionsEntity,
+          {
+            user: manualRequest.user,
+            transaction_type: 'earn', // Use correct enum value
+            description: `Points awarded for manual request: ${manualRequest.description}`,
+            status: 'processed', // Use correct enum value
+            transaction_date: new Date(),
+            reason: `Manual request approved - Request ID: ${id}`,
+            transaction_source: 'internal', // Use correct enum value
+            points_used: manualRequest.points, // Use correct field name
+            points_used_at: new Date(),
+          },
+        );
+
+        await queryRunner.manager.save(pointsTransaction);
+
+        // Update user points - add points to balance
+        await queryRunner.manager
+          .createQueryBuilder()
+          .update(PointsEntity)
+          .set({
+            total_points: () => `total_points + ${manualRequest.points}`,
+            balance_points: () => `balance_points + ${manualRequest.points}`,
+            available_points: () =>
+              `available_points + ${manualRequest.points}`,
+          })
+          .where('user_id = :userId', { userId: pointsTransaction?.user?.id })
+          .execute();
+
+        await queryRunner.commitTransaction();
+        return {
+          points_awarded: manualRequest.points,
+        };
+      }
+
+      await queryRunner.commitTransaction();
+      return { success: true, message: 'Status updated successfully' };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+
+      // Log to sync_log table on failure using SyncLogEntity
+      try {
+        await this.dataSource.manager.save(SyncLogEntity, {
+          sync_type: 'change_status_manual_request',
+          sync_status: 'failed',
+          payload: JSON.stringify(data),
+          response: error.message,
+          user: { id: data.userId }, // Set user relation
+        });
+      } catch (logError) {
+        console.error('Failed to log sync error:', logError);
+      }
+
+      console.log('change Status Manual Request For Admin', error);
+      throw new Error(
+        error?.message || 'Failed to change status manual request',
+      );
+    } finally {
+      await queryRunner.release();
     }
   }
 }

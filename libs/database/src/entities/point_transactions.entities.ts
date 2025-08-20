@@ -20,7 +20,7 @@ export class PointTransactionsEntity {
     type: 'enum',
     enum: ['earn', 'spend'],
   })
-  transaction_type: 'earn' | 'spend' | 'other';
+  transaction_type: 'earn' | 'spend';
 
   @Column({
     type: 'varchar',

@@ -17,6 +17,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -53,6 +54,10 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 
 import { firstValueFrom } from 'rxjs';
 import {
+  AdminChangeStatusRequestDto,
+  AdminChangeStatusResponse,
+  AdminChangeStatusResponseError,
+  AdminChangeStatusResponseErrorStatus,
   AdminClaimMilesManualOverviewDto,
   AdminClaimMilesManualProcessingSpeedDto,
   AdminClaimMilesManualTimeseriesDto,
@@ -61,6 +66,7 @@ import {
   AdminTimeseriesDto,
 } from '../dto/admin-overview.dto';
 import { OverviewResponse } from '../transfer/overview';
+import { ChangeStatusManualRequestDto } from '@app/common/dto/ms-loyalty/status.dto';
 
 @ApiTags('Loyalty')
 @ApiBearerAuth('JWT-auth')
@@ -596,6 +602,60 @@ export class LoyaltyController {
         cmd: MessagePatternForMicro.LOYALTY.GET_MANUAL_REQUEST_DETAIL_FOR_ADMIN,
       },
       { id },
+    );
+  }
+
+  // Change status manual request for admin account
+  @ApiOperation({ summary: 'Change status manual request for admin' })
+  @ApiHeader({
+    name: 'x-user-id',
+    description: 'User ID',
+    required: false,
+  })
+  @ApiBody({ type: AdminChangeStatusRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Manual request updated successfully',
+    type: AdminChangeStatusResponse,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data ID',
+    type: AdminChangeStatusResponseError,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Bad request - Invalid input data status 400',
+    type: AdminChangeStatusResponseErrorStatus,
+  })
+  @Roles(RoleBaseAccessControl.Admin)
+  @Put('admin/claim-miles-manual/:id')
+  changeStatusManualRequestForAdmin(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: ChangeStatusManualRequestDto,
+    @UserIdDecorator() userId: string,
+  ) {
+    if (!id) {
+      throw new HttpException(
+        'Manual request ID is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (!body.status) {
+      throw new HttpException('Status is required', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!userId) {
+      throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
+    }
+
+    return this.loyaltyClient.send(
+      {
+        cmd: MessagePatternForMicro.LOYALTY
+          .CHANGE_STATUS_MANUAL_REQUEST_FOR_ADMIN,
+      },
+      { id, status: body.status, userId },
     );
   }
 }

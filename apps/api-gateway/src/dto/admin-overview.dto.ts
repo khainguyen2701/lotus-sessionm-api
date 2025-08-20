@@ -222,3 +222,87 @@ export class AdminDashboardOverviewDto {
   })
   data: Record<string, any>;
 }
+
+export class AdminChangeStatusResponse {
+  @ApiProperty({
+    description: 'Change status success status',
+    example: true,
+  })
+  success: boolean;
+
+  @ApiProperty({
+    description: 'Change status message',
+    example: 'Change status data retrieved successfully',
+  })
+  message: string;
+
+  @ApiProperty({
+    description: 'Change status data',
+    required: false,
+    example: {
+      points_awarded: 995,
+    },
+  })
+  data: Record<string, any>;
+}
+
+export class AdminChangeStatusResponseError {
+  @ApiProperty({
+    description: 'Change status error status',
+    example: false,
+  })
+  success: boolean;
+
+  @ApiProperty({
+    description: 'Change status status code',
+    example: 400,
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    description: 'Change status data',
+    required: false,
+    example: {
+      message: 'Validation failed (uuid is expected)',
+      error: 'Bad Request',
+      statusCode: 400,
+    },
+  })
+  message: Record<string, any>;
+}
+
+export class AdminChangeStatusResponseErrorStatus {
+  @ApiProperty({
+    description: 'Change status error status',
+    example: false,
+  })
+  success: boolean;
+
+  @ApiProperty({
+    description: 'Change status status code',
+    example: 400,
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    description: 'Change status data',
+    required: false,
+    example: {
+      message: [
+        'status must be one of the following values: processed, rejected',
+      ],
+      error: 'Bad Request',
+      statusCode: 400,
+    },
+  })
+  message: Record<string, any>;
+}
+
+export class AdminChangeStatusRequestDto {
+  @ApiProperty({
+    description: 'Change status request data',
+    required: true,
+    enum: ['processed', 'rejected'],
+  })
+  status: 'processed' | 'rejected';
+}

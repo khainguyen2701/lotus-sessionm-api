@@ -66,4 +66,14 @@ export class MsLoyaltyService {
   async getManualRequestDetailForAdmin(data: { id: string }): Promise<any> {
     return await this.claimMilesRepository.getManualRequestDetailForAdmin(data);
   }
+
+  async changeStatusManualRequestForAdmin(data: {
+    id: string;
+    status: EnumStatusClaimMilesList;
+    userId: string;
+  }): Promise<any> {
+    return await this.claimMilesRepository.changeStatusManualRequestForAdmin(
+      data,
+    );
+  }
 }

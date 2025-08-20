@@ -93,4 +93,15 @@ export class MsLoyaltyController {
   async getManualRequestDetailForAdmin(data: { id: string }): Promise<any> {
     return await this.msLoyaltyService.getManualRequestDetailForAdmin(data);
   }
+
+  @MessagePattern({
+    cmd: MessagePatternForMicro.LOYALTY.CHANGE_STATUS_MANUAL_REQUEST_FOR_ADMIN,
+  })
+  async changeStatusManualRequestForAdmin(data: {
+    id: string;
+    status: EnumStatusClaimMilesList;
+    userId: string;
+  }): Promise<any> {
+    return await this.msLoyaltyService.changeStatusManualRequestForAdmin(data);
+  }
 }
