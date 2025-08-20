@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 enum Status {
   processed = 'processed',
@@ -8,4 +8,8 @@ export class ChangeStatusManualRequestDto {
   @IsEnum(Status)
   @IsNotEmpty()
   status: Status;
+
+  @IsOptional()
+  @IsString()
+  reason: string;
 }

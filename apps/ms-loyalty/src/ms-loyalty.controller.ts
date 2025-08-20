@@ -101,6 +101,7 @@ export class MsLoyaltyController {
     id: string;
     status: EnumStatusClaimMilesList;
     userId: string;
+    reason?: string;
   }): Promise<any> {
     return await this.msLoyaltyService.changeStatusManualRequestForAdmin(data);
   }

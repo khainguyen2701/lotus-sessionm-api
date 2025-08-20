@@ -920,13 +920,14 @@ export class ClaimMilesRepository {
     id: string;
     status: EnumStatusClaimMilesList;
     userId: string;
+    reason?: string;
   }): Promise<any> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      const { id, status, userId } = data;
+      const { id, status, userId, reason } = data;
 
       // Get the manual request first to get points info
       const manualRequest = await queryRunner.manager.findOne(
@@ -958,6 +959,8 @@ export class ClaimMilesRepository {
           status,
           processed_at: new Date(),
           processed_by: { id: userId },
+          ...(reason &&
+            status === EnumStatusClaimMilesList.rejected && { reason }),
         },
       );
 

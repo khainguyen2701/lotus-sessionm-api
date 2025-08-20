@@ -655,7 +655,7 @@ export class LoyaltyController {
         cmd: MessagePatternForMicro.LOYALTY
           .CHANGE_STATUS_MANUAL_REQUEST_FOR_ADMIN,
       },
-      { id, status: body.status, userId },
+      { id, status: body.status, userId, reason: body.reason || '' },
     );
   }
 }

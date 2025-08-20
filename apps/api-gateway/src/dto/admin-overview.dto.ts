@@ -305,4 +305,11 @@ export class AdminChangeStatusRequestDto {
     enum: ['processed', 'rejected'],
   })
   status: 'processed' | 'rejected';
+
+  @ApiProperty({
+    description: 'Change status request data',
+    required: false,
+    example: 'Reason for change status',
+  })
+  reason: string;
 }
