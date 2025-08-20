@@ -38,5 +38,8 @@ export const MessagePatternForMicro = {
     ADMIN_OVERVIEW: 'loyalty.admin.overview',
     ADMIN_TIMESERIES: 'loyalty.admin.timeseries',
     ADMIN_PROCESSING_SPEED: 'loyalty.admin.processing_speed',
+    GET_MANUAL_REQUEST_DETAIL: 'loyalty.get_manual_request_detail',
+    GET_MANUAL_REQUEST_DETAIL_FOR_ADMIN:
+      'loyalty.get_manual_request_detail_for_admin',
   },
 };

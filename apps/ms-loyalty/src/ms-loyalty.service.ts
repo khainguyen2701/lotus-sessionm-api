@@ -54,4 +54,15 @@ export class MsLoyaltyService {
   async getProcessingSpeed(query: ProcessingSpeedQueryDto) {
     return await this.claimMilesRepository.getProcessingSpeed(query);
   }
+
+  async getManualRequestDetail(data: {
+    id: string;
+    userId: string;
+  }): Promise<any> {
+    return await this.claimMilesRepository.getManualRequestDetail(data);
+  }
+
+  async getManualRequestDetailForAdmin(data: { id: string }): Promise<any> {
+    return await this.claimMilesRepository.getManualRequestDetailForAdmin(data);
+  }
 }

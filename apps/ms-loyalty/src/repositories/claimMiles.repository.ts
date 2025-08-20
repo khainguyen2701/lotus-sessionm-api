@@ -537,9 +537,9 @@ export class ClaimMilesRepository {
     ]);
 
     return {
-      processing_vs_yesterday: pendingYesterday - pendingDayBefore,
-      approved_vs_week: approvedThisWeek - approvedLastWeek,
-      rejected_vs_week: rejectedThisWeek - rejectedLastWeek,
+      processing_vs_yesterday: Math.abs(pendingYesterday - pendingDayBefore),
+      approved_vs_week: Math.abs(approvedThisWeek - approvedLastWeek),
+      rejected_vs_week: Math.abs(rejectedThisWeek - rejectedLastWeek),
     };
   }
 
@@ -730,8 +730,6 @@ export class ClaimMilesRepository {
 
       const processingTimes = await processingTimesQuery.getRawMany();
 
-      console.log('processingTimes', processingTimes);
-
       // Calculate cumulative percentages for each bin
       const totalRequests = processingTimes.length;
       const cumulativePercent = bins.map((bin) => {
@@ -781,6 +779,122 @@ export class ClaimMilesRepository {
         return 'month';
       default:
         return 'day';
+    }
+  }
+
+  // Get manual member request detail
+  async getManualRequestDetail(data: {
+    id: string;
+    userId: string;
+  }): Promise<any> {
+    try {
+      const manualRequest = await this.manualPointsRequestRepository
+        .createQueryBuilder('request')
+        .leftJoinAndSelect('request.user', 'user')
+        .select([
+          'request.id',
+          'request.description',
+          'request.file_url',
+          'request.request_type',
+          'request.seat_code',
+          'request.ticket_number',
+          'request.status',
+          'request.flight_code',
+          'request.flight_departure_airport',
+          'request.flight_arrival_airport',
+          'request.flight_departure_date',
+          'request.flight_arrival_date',
+          'request.distance',
+          'request.seat_class',
+          'request.flight_airline',
+          'request.request_number',
+          'request.uploaded_at',
+          'request.processed_at',
+          'request.points',
+          'user.id',
+          'user.user_name',
+          'user.user_email',
+          'user.first_name',
+          'user.last_name',
+          'user.user_number',
+          'user.city',
+          'user.country',
+          'user.phone_numbers',
+          'user.zip',
+          'user.state',
+          'user.tier_id',
+          'user.points_id',
+          'user.district',
+          'user.ward',
+        ])
+        .where('request.id = :id', { id: data.id })
+        .andWhere('user.id = :userId', { userId: data.userId })
+        .getOne();
+
+      if (!manualRequest) {
+        return {}; // Return null instead of empty object for better handling
+      }
+
+      return manualRequest;
+    } catch (error) {
+      console.log('get Manual Request Detail', error);
+      throw new Error(error?.message || 'Failed to get manual request detail');
+    }
+  }
+
+  // Get manual member request detail for admin
+  async getManualRequestDetailForAdmin(data: { id: string }): Promise<any> {
+    try {
+      const manualRequest = await this.manualPointsRequestRepository
+        .createQueryBuilder('request')
+        .leftJoinAndSelect('request.user', 'user')
+        .select([
+          'request.id',
+          'request.description',
+          'request.file_url',
+          'request.request_type',
+          'request.seat_code',
+          'request.ticket_number',
+          'request.status',
+          'request.flight_code',
+          'request.flight_departure_airport',
+          'request.flight_arrival_airport',
+          'request.flight_departure_date',
+          'request.flight_arrival_date',
+          'request.distance',
+          'request.seat_class',
+          'request.flight_airline',
+          'request.request_number',
+          'request.uploaded_at',
+          'request.processed_at',
+          'request.points',
+          'user.id',
+          'user.user_name',
+          'user.user_email',
+          'user.first_name',
+          'user.last_name',
+          'user.user_number',
+          'user.city',
+          'user.country',
+          'user.phone_numbers',
+          'user.zip',
+          'user.state',
+          'user.tier_id',
+          'user.points_id',
+          'user.district',
+          'user.ward',
+        ])
+        .where('request.id = :id', { id: data.id })
+        .getOne();
+
+      if (!manualRequest) {
+        return {}; // Return null instead of empty object for better handling
+      }
+
+      return manualRequest;
+    } catch (error) {
+      console.log('get Manual Request Detail For Admin', error);
+      throw new Error(error?.message || 'Failed to get manual request detail');
     }
   }
 }

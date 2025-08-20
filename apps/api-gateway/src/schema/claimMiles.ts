@@ -273,3 +273,242 @@ export const GetListClaimMilesSchema = {
     },
   },
 };
+
+export const GetManualRequestDetailSchema = {
+  type: 'object',
+  properties: {
+    success: {
+      type: 'boolean',
+      example: true,
+    },
+    data: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          example: '2581e5a5-62ed-4a0d-af5e-c141d63ab203',
+        },
+        request_type: {
+          type: 'string',
+          example: 'flight',
+        },
+        status: {
+          type: 'string',
+          example: 'processing',
+        },
+        points: {
+          type: 'number',
+          example: 521,
+        },
+        discount: {
+          type: 'number',
+          example: 0,
+        },
+        description: {
+          type: 'string',
+          example: 'earn point flght',
+        },
+        reason: {
+          type: 'string',
+          example: '',
+        },
+        user: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              example: '08fffc48-e81d-4923-8519-2d06df4b0877',
+            },
+            user_name: {
+              type: 'string',
+              example: 'tinnguyen',
+            },
+            user_email: {
+              type: 'string',
+              example: 'tin.nguyen@kyanon.digital',
+            },
+            user_type: {
+              type: 'string',
+              example: 'user',
+            },
+            created_at: {
+              type: 'string',
+              format: 'date-time',
+              example: '2025-08-15T03:19:27.023Z',
+            },
+            updated_at: {
+              type: 'string',
+              format: 'date-time',
+              example: '2025-08-16T10:07:12.799Z',
+            },
+            first_name: {
+              type: 'string',
+              example: 'tin',
+            },
+            last_name: {
+              type: 'string',
+              example: 'Khaiiiii',
+            },
+            gender: {
+              type: 'string',
+              example: 'm',
+            },
+            dob: {
+              type: 'string',
+              format: 'date',
+              example: '2000-01-27',
+            },
+            address: {
+              type: 'string',
+              example: '14 Đường Apollo',
+            },
+            city: {
+              type: 'string',
+              example: 'Thành phố Hồ Chí Minh',
+            },
+            state: {
+              type: 'string',
+              example: 'Thành phố Thủ Đức',
+            },
+            zip: {
+              type: 'string',
+              example: '10001',
+            },
+            country: {
+              type: 'string',
+              example: 'VietNam',
+            },
+            phone_numbers: {
+              type: 'string',
+              example: '0976793792',
+            },
+            user_number: {
+              type: 'string',
+              example: 'KN6-HDW-NMV',
+            },
+            district: {
+              type: 'string',
+              example: 'Thành phố Thủ Đức',
+            },
+            ward: {
+              type: 'string',
+              example: 'Phường Long Bình',
+            },
+          },
+        },
+        file_name: {
+          type: 'string',
+          example: '',
+        },
+        file_url: {
+          type: 'string',
+          example: 'https://peppy-pavlova-7cdfaa.netlify.app/air-plane.jpeg',
+        },
+        uploaded_at: {
+          type: 'string',
+          format: 'date-time',
+          example: '2025-08-18T07:07:13.281Z',
+        },
+        processed_at: {
+          type: 'string',
+          format: 'date-time',
+          example: '2025-08-18T07:07:13.281Z',
+        },
+        seat_code: {
+          type: 'string',
+          example: '28J',
+        },
+        seat_class: {
+          type: 'string',
+          example: 'first',
+        },
+        ticket_number: {
+          type: 'string',
+          example: '7381924352209',
+        },
+        flight_code: {
+          type: 'string',
+          example: 'VN0073',
+        },
+        flight_departure_airport: {
+          type: 'string',
+          example: 'HUI',
+        },
+        flight_arrival_airport: {
+          type: 'string',
+          example: 'TBB',
+        },
+        flight_departure_date: {
+          type: 'string',
+          format: 'date-time',
+          example: '2025-08-16T17:00:00.000Z',
+        },
+        flight_arrival_date: {
+          type: 'string',
+          format: 'date-time',
+          example: '2025-08-18T17:00:00.000Z',
+        },
+        distance: {
+          type: 'number',
+          example: 559,
+        },
+        flight_duration: {
+          type: 'number',
+          example: 0,
+        },
+        flight_airline: {
+          type: 'string',
+          example: 'VN0073',
+        },
+        request_number: {
+          type: 'string',
+          example: 'REQ-1755526033281',
+        },
+        invoice_number: {
+          type: 'string',
+          example: 'VNA',
+        },
+      },
+    },
+    timestamp: {
+      type: 'string',
+      format: 'date-time',
+      example: '2025-08-20T04:15:07.766Z',
+    },
+  },
+};
+export const GetManualRequestDetailSchemaError = {
+  type: 'object',
+  properties: {
+    success: {
+      type: 'boolean',
+      example: false,
+    },
+    statusCode: {
+      type: 'number',
+      example: 400,
+    },
+    message: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Validation failed (uuid is expected)',
+        },
+        error: {
+          type: 'string',
+          example: 'Bad Request',
+        },
+        statusCode: {
+          type: 'number',
+          example: 400,
+        },
+      },
+    },
+    timestamp: {
+      type: 'string',
+      format: 'date-time',
+      example: '2025-08-20T04:17:03.387Z',
+    },
+  },
+};

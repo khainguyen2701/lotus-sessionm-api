@@ -9,7 +9,16 @@ import { Roles } from '@app/common/decorators/role.decorator';
 import { UserIdDecorator } from '@app/common/decorators/userId.decorators';
 import { CreateManualRequestDTO } from '@app/common/dto/ms-loyalty/manual-request.dto';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
-import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
   ApiBearerAuth,
@@ -24,6 +33,8 @@ import { EnumSortClaimMilesList, EnumStatusClaimMilesList } from '../dto/claim';
 import {
   ClaimMilesManualSchema,
   GetListClaimMilesSchema,
+  GetManualRequestDetailSchema,
+  GetManualRequestDetailSchemaError,
 } from '../schema/claimMiles';
 
 import {
@@ -507,5 +518,76 @@ export class LoyaltyController {
         error?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  // Get detail manual request for member account
+  @ApiOperation({ summary: 'Get detail manual request for member' })
+  @ApiHeader({
+    name: 'x-user-id',
+    description: 'User ID',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Manual request created successfully',
+    schema: GetManualRequestDetailSchema,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+    schema: GetManualRequestDetailSchemaError,
+  })
+  @Roles(RoleBaseAccessControl.User)
+  @Get('member/claim-miles-manual/:id')
+  getManualRequestDetail(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UserIdDecorator() userId: string,
+  ) {
+    if (!id || !userId) {
+      throw new HttpException(
+        'Manual request ID and user ID are required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return this.loyaltyClient.send(
+      { cmd: MessagePatternForMicro.LOYALTY.GET_MANUAL_REQUEST_DETAIL },
+      { id, userId },
+    );
+  }
+
+  // Get detail manual request for admin account
+  @ApiOperation({ summary: 'Get detail manual request for admin' })
+  @ApiHeader({
+    name: 'x-user-id',
+    description: 'User ID',
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Manual request created successfully',
+    schema: GetManualRequestDetailSchema,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+    schema: GetManualRequestDetailSchemaError,
+  })
+  @Roles(RoleBaseAccessControl.Admin)
+  @Get('admin/claim-miles-manual/:id')
+  getManualRequestDetailForAdmin(@Param('id', ParseUUIDPipe) id: string) {
+    if (!id) {
+      throw new HttpException(
+        'Manual request ID is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return this.loyaltyClient.send(
+      {
+        cmd: MessagePatternForMicro.LOYALTY.GET_MANUAL_REQUEST_DETAIL_FOR_ADMIN,
+      },
+      { id },
+    );
   }
 }

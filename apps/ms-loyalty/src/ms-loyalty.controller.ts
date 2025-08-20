@@ -75,4 +75,21 @@ export class MsLoyaltyController {
   async getAdminProcessingSpeed(query: ProcessingSpeedQueryDto) {
     return await this.msLoyaltyService.getProcessingSpeed(query);
   }
+
+  @MessagePattern({
+    cmd: MessagePatternForMicro.LOYALTY.GET_MANUAL_REQUEST_DETAIL,
+  })
+  async getManualRequestDetail(data: {
+    id: string;
+    userId: string;
+  }): Promise<any> {
+    return await this.msLoyaltyService.getManualRequestDetail(data);
+  }
+
+  @MessagePattern({
+    cmd: MessagePatternForMicro.LOYALTY.GET_MANUAL_REQUEST_DETAIL_FOR_ADMIN,
+  })
+  async getManualRequestDetailForAdmin(data: { id: string }): Promise<any> {
+    return await this.msLoyaltyService.getManualRequestDetailForAdmin(data);
+  }
 }
