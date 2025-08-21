@@ -518,7 +518,7 @@ export class LoyaltyController {
         requests_timeseries: requestsTimeseriesData as any,
         processing_speed: processingSpeedData as any,
         members: membersData as any,
-        miles_this_month: monthlyData.total_miles || 0,
+        miles_this_month: monthlyData?.data?.total_miles || 0,
       };
 
       return {
