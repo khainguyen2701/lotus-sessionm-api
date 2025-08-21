@@ -25,6 +25,8 @@ export const MessagePatternForMicro = {
     CREATE: 'rewards.create_reward',
     CREATE_TIER: 'rewards.create_tier',
     GET_ALL_TIERS: 'rewards.get_all_tiers',
+    GET_MEMBER_TRANSACTIONS: 'rewards.get_member_transactions',
+    GET_ADMIN_TRANSACTIONS: 'rewards.get_admin_transactions',
   },
   LOYALTY: {
     GET_ALL: 'loyalty.get_loyalty',

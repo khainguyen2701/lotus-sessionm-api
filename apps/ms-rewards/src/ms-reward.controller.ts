@@ -17,4 +17,25 @@ export class MsRewardController {
   async getAllTiers(): Promise<any> {
     return await this.msRewardService.getAllTiers();
   }
+
+  @MessagePattern({
+    cmd: MessagePatternForMicro.REWARDS.GET_MEMBER_TRANSACTIONS,
+  })
+  async getMemberTransactions(body: {
+    userId: string;
+    size?: number;
+    page?: number;
+  }): Promise<any> {
+    return await this.msRewardService.getMemberTransactions(body);
+  }
+
+  @MessagePattern({
+    cmd: MessagePatternForMicro.REWARDS.GET_ADMIN_TRANSACTIONS,
+  })
+  async getAdminTransactions(body: {
+    size?: number;
+    page?: number;
+  }): Promise<any> {
+    return await this.msRewardService.getAdminTransactions(body);
+  }
 }
