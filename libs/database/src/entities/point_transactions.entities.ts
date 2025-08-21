@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UsersEntity } from './users.entitites';
+import { UsersEntity } from './users.entitities';
 import { SyncLogEntity } from './sync_log.entities';
 
 @Entity('point_transactions')

@@ -6,11 +6,12 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { UsersEntity } from './users.entitites';
+import { UsersEntity } from './users.entitities';
 
 @Entity('manual_points_request')
 @Index('idx_manual_points_request_user_id', ['user'])
 @Index('idx_manual_points_request_status', ['status'])
+@Index('idx_manual_points_request_ticket_number', ['ticket_number'])
 export class ManualPointsRequestEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

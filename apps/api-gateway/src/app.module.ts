@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppService } from './app.service';
 import { UsersController } from './controllers/user.controller';
 import { AuthController } from './controllers/auth.controller';
@@ -16,6 +17,23 @@ import { LoyaltyController } from './controllers/loyalty.controller';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 60000, // 1 minute
+        limit: 10,
+      },
+      {
+        name: 'medium',
+        ttl: 600000, // 10 minutes
+        limit: 20,
+      },
+      {
+        name: 'long',
+        ttl: 3600000, // 1 hour
+        limit: 100,
+      },
+    ]),
     JwtModule.register({
       global: true,
       secret: process.env.SECRET_KEY_JWT,
@@ -67,6 +85,7 @@ import { LoyaltyController } from './controllers/loyalty.controller';
     AppService,
     { provide: APP_GUARD, useClass: HybridAuthGuard },
     { provide: APP_GUARD, useClass: RoleBaseAccessControlGuard },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule {}

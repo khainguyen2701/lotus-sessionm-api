@@ -313,3 +313,82 @@ export class AdminChangeStatusRequestDto {
   })
   reason: string;
 }
+
+export class DirectClaimMilesSchemaError {
+  @ApiProperty({
+    description: 'Direct claim miles error status',
+    example: false,
+  })
+  success: boolean;
+
+  @ApiProperty({
+    description: 'Direct claim miles status code',
+    example: 500,
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    description: 'Error message',
+    example: 'User not found',
+  })
+  message: string;
+
+  @ApiProperty({
+    description: 'Error timestamp',
+    example: '2025-08-21T10:31:54.947Z',
+  })
+  timestamp: string;
+}
+
+export class BadRequestClaimMilesError {
+  @ApiProperty({
+    description: 'Bad request error status',
+    example: false,
+  })
+  success: boolean;
+
+  @ApiProperty({
+    description: 'Bad request status code',
+    example: 400,
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    description: 'Error message details',
+    example: {
+      message: 'Expected double-quoted property name in JSON at position 86',
+      error: 'Bad Request',
+      statusCode: 400,
+    },
+  })
+  message: Record<string, any>;
+
+  @ApiProperty({
+    description: 'Error timestamp',
+    example: '2025-08-21T10:35:02.179Z',
+  })
+  timestamp: string;
+}
+
+export class DirectClaimMilesSchemaResponse {
+  @ApiProperty({
+    description: 'Direct claim miles success status',
+    example: true,
+  })
+  success: boolean;
+
+  @ApiProperty({
+    description: 'Direct claim miles data',
+    required: false,
+    example: {
+      points_awarded: 75,
+    },
+  })
+  data: Record<string, any>;
+
+  @ApiProperty({
+    description: 'Response timestamp',
+    example: '2025-08-21T10:36:16.958Z',
+  })
+  timestamp: string;
+}

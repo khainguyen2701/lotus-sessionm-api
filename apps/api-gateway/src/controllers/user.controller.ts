@@ -31,6 +31,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { EnumSortClaimMilesList } from '../dto/claim';
 import {
@@ -262,6 +263,7 @@ export class UsersController {
   })
   @Post('/upload-file')
   @Roles(RoleBaseAccessControl.User)
+  @Throttle({ default: { limit: 50, ttl: 3600000 } }) // 10 uploads per hour
   @UseInterceptors(
     FileInterceptor('file', {
       limits: {

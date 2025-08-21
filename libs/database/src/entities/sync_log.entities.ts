@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { PointTransactionsEntity } from './point_transactions.entities';
-import { UsersEntity } from './users.entitites';
+import { UsersEntity } from './users.entitities';
 
 @Entity('sync_log')
 export class SyncLogEntity {

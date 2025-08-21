@@ -512,3 +512,26 @@ export const GetManualRequestDetailSchemaError = {
     },
   },
 };
+
+export const CreateManualRequestError = {
+  type: 'object',
+  properties: {
+    success: {
+      type: 'boolean',
+      example: false,
+    },
+    statusCode: {
+      type: 'number',
+      example: 500,
+    },
+    message: {
+      type: 'string',
+      example: 'Ticket number already exists',
+    },
+    timestamp: {
+      type: 'string',
+      format: 'date-time',
+      example: '2025-08-20T04:17:03.387Z',
+    },
+  },
+};

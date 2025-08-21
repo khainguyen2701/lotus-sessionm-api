@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UsersEntity } from './users.entitites';
+import { UsersEntity } from './users.entitities';
 
 @Entity('accounts')
 @Index('idx_accounts_account_email', ['account_email'])

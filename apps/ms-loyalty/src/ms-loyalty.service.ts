@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { PagingConfig } from '@app/common/decorators/paging.decorators';
 import { CreateManualRequestDTO } from '@app/common/dto/ms-loyalty/manual-request.dto';
 import {
   OverviewQueryDto,
   TimeseriesQueryDto,
   ProcessingSpeedQueryDto,
+  RequestType,
 } from '@app/common/dto/ms-loyalty/admin.dto';
 import { Injectable } from '@nestjs/common';
 import {
@@ -19,7 +21,11 @@ export class MsLoyaltyService {
   async createManualRequest(
     data: CreateManualRequestDTO & { userId: string },
   ): Promise<any> {
-    return await this.claimMilesRepository.createManualRequest(data);
+    try {
+      return await this.claimMilesRepository.createManualRequest(data);
+    } catch (error) {
+      throw new Error(error?.message || 'Failed to create manual request');
+    }
   }
 
   async getListManualRequest(
@@ -29,7 +35,11 @@ export class MsLoyaltyService {
       sort?: EnumSortClaimMilesList;
     } & PagingConfig,
   ) {
-    return await this.claimMilesRepository.getListManualRequest(query);
+    try {
+      return await this.claimMilesRepository.getListManualRequest(query);
+    } catch (error) {
+      throw new Error(error?.message || 'Failed to create manual request');
+    }
   }
 
   async getListManualRequestForAdmin(
@@ -76,5 +86,19 @@ export class MsLoyaltyService {
     return await this.claimMilesRepository.changeStatusManualRequestForAdmin(
       data,
     );
+  }
+
+  async adminDirectMileage(data: {
+    userId: string;
+    points: number;
+    description: string;
+    request_type: RequestType;
+    user_number: string;
+  }): Promise<any> {
+    try {
+      return await this.claimMilesRepository.adminDirectMileage(data);
+    } catch (error) {
+      throw new Error(error?.message || 'Failed to admin direct mileage');
+    }
   }
 }

@@ -3,6 +3,7 @@ export * from './manual_points_request.entities';
 export * from './point_transactions.entities';
 export * from './sync_log.entities';
 export * from './tiers.entities';
-export * from './users.entitites';
+export * from './users.entitities';
 export * from './flight_info.entities';
 export * from './points.entities';
+export * from './admin_point_transactions.entities';

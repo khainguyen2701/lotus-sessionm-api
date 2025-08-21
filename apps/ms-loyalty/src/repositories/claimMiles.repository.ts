@@ -8,6 +8,7 @@ import {
   OverviewQueryDto,
   ProcessingSpeedQueryDto,
   RequestStatus,
+  RequestType,
   TimeseriesQueryDto,
 } from '@app/common/dto/ms-loyalty/admin.dto';
 import { CreateManualRequestDTO } from '@app/common/dto/ms-loyalty/manual-request.dto';
@@ -20,7 +21,8 @@ import {
   SyncLogEntity,
   UsersEntity,
 } from '@app/database';
-import { Injectable } from '@nestjs/common';
+import { AdminPointTransactionsEntity } from '@app/database/entities/admin_point_transactions.entities';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   EnumSortClaimMilesList,
@@ -38,6 +40,8 @@ export class ClaimMilesRepository {
     private flightInfoRepository: Repository<FlightInfoEntity>,
     @InjectRepository(UsersEntity)
     private usersRepository: Repository<UsersEntity>,
+    @InjectRepository(AdminPointTransactionsEntity)
+    private adminPointTransactionsRepository: Repository<AdminPointTransactionsEntity>,
   ) {}
   async createManualRequest(
     data: CreateManualRequestDTO & { userId: string },
@@ -57,6 +61,18 @@ export class ClaimMilesRepository {
     } = data;
 
     try {
+      const manual_point = await this.manualPointsRequestRepository
+        .createQueryBuilder('manual_points_request')
+        .where('manual_points_request.ticket_number = :ticket_number', {
+          ticket_number,
+        })
+        .useIndex('idx_manual_points_request_ticket_number')
+        .getOne();
+
+      if (manual_point) {
+        throw new BadRequestException('Ticket number already exists');
+      }
+
       const user = await this.usersRepository
         .createQueryBuilder('user')
         .where('user.id = :userId', { userId })
@@ -1034,6 +1050,82 @@ export class ClaimMilesRepository {
       throw new Error(
         error?.message || 'Failed to change status manual request',
       );
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async adminDirectMileage(data: {
+    userId: string;
+    points: number;
+    description: string;
+    request_type: RequestType;
+    user_number: string;
+  }): Promise<any> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // return await queryRunner.manager.adminDirectMileage(data);
+
+      const user = await this.usersRepository
+        .createQueryBuilder('user')
+        .select(['user.id', 'user.user_name'])
+        .where('user.user_number = :user_number', {
+          user_number: data.user_number,
+        })
+        .getOne();
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const point = calculatePointsByDistance({
+        request_type: data.request_type,
+        ...(data.request_type === RequestType.FLIGHT
+          ? {
+              distance_km: data.points,
+            }
+          : { amount: data.points }),
+      });
+
+      const pointsTransaction = queryRunner.manager.create(
+        AdminPointTransactionsEntity,
+        {
+          description: data.description,
+          request_type: data.request_type,
+          type: 'earn',
+          status: 'processed',
+          processed_by: { id: data.userId },
+          points_used: point.points_awarded,
+          miles: data.points,
+          user: user,
+        },
+      );
+
+      await queryRunner.manager.save(pointsTransaction);
+
+      await queryRunner.manager
+        .createQueryBuilder()
+        .update(PointsEntity)
+        .set({
+          total_points: () => `total_points + ${pointsTransaction.points_used}`,
+          balance_points: () =>
+            `balance_points + ${pointsTransaction.points_used}`,
+          available_points: () =>
+            `available_points + ${pointsTransaction.points_used}`,
+        })
+        .where('user_id = :userId', { userId: user?.id })
+        .execute();
+
+      await queryRunner.commitTransaction();
+      return {
+        points_awarded: pointsTransaction.points_used,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new Error(error?.message || 'Failed to admin direct mileage');
     } finally {
       await queryRunner.release();
     }

@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { CreateManualRequestDTO } from '@app/common/dto/ms-loyalty/manual-request.dto';
 import {
   OverviewQueryDto,
   TimeseriesQueryDto,
   ProcessingSpeedQueryDto,
+  RequestType,
 } from '@app/common/dto/ms-loyalty/admin.dto';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
-import { Controller } from '@nestjs/common';
+import { Controller, HttpException, HttpStatus } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { MsLoyaltyService } from './ms-loyalty.service';
 import {
@@ -22,10 +24,17 @@ export class MsLoyaltyController {
   async createManualRequest(
     data: CreateManualRequestDTO & { userId: string },
   ): Promise<any> {
-    if (!data.userId) {
-      throw new Error('User ID is required');
+    try {
+      if (!data.userId) {
+        throw new Error('User ID is required');
+      }
+      return await this.msLoyaltyService.createManualRequest(data);
+    } catch (error) {
+      throw new HttpException(
+        error?.message || 'Failed to create manual request',
+        error?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-    return await this.msLoyaltyService.createManualRequest(data);
   }
 
   @MessagePattern({
@@ -38,7 +47,14 @@ export class MsLoyaltyController {
       sort?: EnumSortClaimMilesList;
     } & PagingConfig,
   ) {
-    return await this.msLoyaltyService.getListManualRequest(query);
+    try {
+      return await this.msLoyaltyService.getListManualRequest(query);
+    } catch (error) {
+      throw new HttpException(
+        error?.message || 'Failed to get manual requests',
+        error?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @MessagePattern({
@@ -104,5 +120,25 @@ export class MsLoyaltyController {
     reason?: string;
   }): Promise<any> {
     return await this.msLoyaltyService.changeStatusManualRequestForAdmin(data);
+  }
+
+  @MessagePattern({
+    cmd: MessagePatternForMicro.LOYALTY.ADMIN_DIRECT_MILEAGE,
+  })
+  async adminDirectMileage(data: {
+    userId: string;
+    points: number;
+    description: string;
+    request_type: RequestType;
+    user_number: string;
+  }): Promise<any> {
+    try {
+      return await this.msLoyaltyService.adminDirectMileage(data);
+    } catch (error) {
+      throw new HttpException(
+        error?.message || 'Failed to admin direct mileage',
+        error?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

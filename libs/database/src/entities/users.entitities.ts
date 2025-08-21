@@ -16,6 +16,7 @@ import { PointTransactionsEntity } from './point_transactions.entities';
 import { PointsEntity } from './points.entities';
 import { SyncLogEntity } from './sync_log.entities';
 import { TiersEntity } from './tiers.entities';
+import { AdminPointTransactionsEntity } from './admin_point_transactions.entities';
 
 @Entity('users')
 @Index('idx_users_user_email', ['user_email'])
@@ -225,4 +226,30 @@ export class UsersEntity {
     nullable: true,
   })
   ward: string;
+
+  @OneToMany(
+    () => AdminPointTransactionsEntity,
+    (adminPointTransactions) => adminPointTransactions.processed_by,
+    {
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
+      nullable: true,
+      cascade: true,
+    },
+  )
+  @JoinColumn({ name: 'processed_by' })
+  admin_point_transactions: AdminPointTransactionsEntity[];
+
+  @OneToMany(
+    () => AdminPointTransactionsEntity,
+    (adminPointTransactions) => adminPointTransactions.user,
+    {
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
+      nullable: true,
+      cascade: true,
+    },
+  )
+  @JoinColumn({ name: 'user_id' })
+  admin_point_transactions_user: AdminPointTransactionsEntity[];
 }

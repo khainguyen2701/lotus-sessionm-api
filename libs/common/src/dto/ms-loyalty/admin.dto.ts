@@ -5,6 +5,7 @@ import {
   IsArray,
   IsDateString,
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -241,4 +242,22 @@ export class ApiResponseDto<T> {
 
   @ApiProperty({ description: 'Response timestamp' })
   timestamp: string;
+}
+
+export class AdminDirectMileageDto {
+  @ApiProperty({ description: 'Points', example: 1000 })
+  @IsNumber()
+  points: number;
+
+  @ApiProperty({ description: 'Description', example: 'Flight ticket' })
+  @IsString()
+  description: string;
+
+  @ApiProperty({ description: 'Type', example: RequestType.FLIGHT })
+  @IsEnum(RequestType)
+  request_type: RequestType;
+
+  @ApiProperty({ description: 'User number', example: 'LM-124232' })
+  @IsString()
+  user_number: string;
 }

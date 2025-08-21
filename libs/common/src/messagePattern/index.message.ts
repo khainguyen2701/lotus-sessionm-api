@@ -45,5 +45,6 @@ export const MessagePatternForMicro = {
       'loyalty.get_manual_request_detail_for_admin',
     CHANGE_STATUS_MANUAL_REQUEST_FOR_ADMIN:
       'loyalty.change_status_manual_request_for_admin',
+    ADMIN_DIRECT_MILEAGE: 'loyalty.admin.direct_mileage',
   },
 };

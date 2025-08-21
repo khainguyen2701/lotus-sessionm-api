@@ -8,6 +8,7 @@ import { MessagePatternForMicro } from '@app/common/messagePattern/index.message
 import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { RefreshTokenClassDto } from 'apps/ms-auth/src/dto/token.dto';
 import {
   AuthMemberSignInSchemaError,
@@ -35,6 +36,7 @@ export class AuthController {
     schema: AuthMemberSignInSchemaError,
   })
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 300000 } }) // 5 attempts per 5 minutes per IP
   @Post('/member-portal/sign-in')
   signInMemberPortal(@Body() body: AuthMemberSignInDTO) {
     return this.authClient.send(
@@ -57,6 +59,7 @@ export class AuthController {
     schema: AuthMemberSignUpSchemaError,
   })
   @Public()
+  @Throttle({ default: { limit: 50, ttl: 3600000 } }) // 3 registrations per hour per IP
   @Post('/member-portal/sign-up')
   signUpMemberPortal(@Body() body: AuthMemberSignUpDTO) {
     const data = this.authClient.send(
@@ -81,6 +84,7 @@ export class AuthController {
     schema: AuthMemberSignInSchemaError,
   })
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 3600000 } }) // 2 admin registrations per hour per IP
   @Post('/admin-portal/sign-up')
   signUpAdminPortal(@Body() body: AuthAdminSignUpDTO) {
     const data = this.authClient.send(
@@ -104,6 +108,7 @@ export class AuthController {
     schema: AuthMemberSignInSchemaError,
   })
   @Public()
+  @Throttle({ default: { limit: 50, ttl: 300000 } }) // 5 attempts per 5 minutes per IP
   @Post('/admin-portal/sign-in')
   signInAdminPortal(@Body() body: AuthMemberSignInDTO) {
     const data = this.authClient.send(
@@ -118,6 +123,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
   @ApiResponse({ status: 401, description: 'Invalid refresh token' })
   @Public()
+  @Throttle({ default: { limit: 10, ttl: 600000 } }) // 10 refresh attempts per 10 minutes per IP
   @Post('/refresh-token')
   refreshToken(@Body() body: RefreshTokenClassDto) {
     const data = this.authClient.send(

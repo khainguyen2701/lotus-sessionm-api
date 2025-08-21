@@ -33,12 +33,14 @@ import {
 import { EnumSortClaimMilesList, EnumStatusClaimMilesList } from '../dto/claim';
 import {
   ClaimMilesManualSchema,
+  CreateManualRequestError,
   GetListClaimMilesSchema,
   GetManualRequestDetailSchema,
   GetManualRequestDetailSchemaError,
 } from '../schema/claimMiles';
 
 import {
+  AdminDirectMileageDto,
   DashboardApiResponseDto,
   DashboardOverviewQueryDto,
   DashboardOverviewResponseDto,
@@ -64,6 +66,9 @@ import {
   AdminDashboardOverviewDto,
   AdminOverViewDto,
   AdminTimeseriesDto,
+  BadRequestClaimMilesError,
+  DirectClaimMilesSchemaError,
+  DirectClaimMilesSchemaResponse,
 } from '../dto/admin-overview.dto';
 import { OverviewResponse } from '../transfer/overview';
 import { ChangeStatusManualRequestDto } from '@app/common/dto/ms-loyalty/status.dto';
@@ -92,6 +97,11 @@ export class LoyaltyController {
   @ApiResponse({
     status: 400,
     description: 'Bad request - Invalid input data',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Bad request - Invalid input data',
+    schema: CreateManualRequestError,
   })
   @Post('/claim-miles-manual/create')
   createManualRequest(
@@ -656,6 +666,48 @@ export class LoyaltyController {
           .CHANGE_STATUS_MANUAL_REQUEST_FOR_ADMIN,
       },
       { id, status: body.status, userId, reason: body.reason || '' },
+    );
+  }
+
+  @ApiOperation({ summary: 'Admin direct mileage' })
+  @ApiHeader({
+    name: 'x-user-id',
+    description: 'User ID',
+    required: true,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Admin direct mileage created successfully',
+    type: DirectClaimMilesSchemaResponse,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+    type: BadRequestClaimMilesError,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: DirectClaimMilesSchemaError,
+  })
+  @ApiBody({ type: AdminDirectMileageDto })
+  @Roles(RoleBaseAccessControl.Admin)
+  @Post('admin/direct-mileage')
+  adminDirectMileage(
+    @Body() body: AdminDirectMileageDto,
+    @UserIdDecorator() userId: string,
+  ) {
+    if (!userId) {
+      throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
+    }
+    return this.loyaltyClient.send(
+      {
+        cmd: MessagePatternForMicro.LOYALTY.ADMIN_DIRECT_MILEAGE,
+      },
+      {
+        userId,
+        ...body,
+      },
     );
   }
 }
