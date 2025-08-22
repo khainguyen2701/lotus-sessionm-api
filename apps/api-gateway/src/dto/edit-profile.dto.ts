@@ -187,3 +187,15 @@ export class EditProfileResponseDto {
   })
   data?: Record<string, any>;
 }
+
+export class AdminUpdateUserDto {
+  @ApiProperty({
+    description: 'User status',
+    example: 'active',
+  })
+  @IsOptional()
+  @IsEnum(['active', 'inactive'], {
+    message: 'User status must be either active or inactive',
+  })
+  status?: string;
+}

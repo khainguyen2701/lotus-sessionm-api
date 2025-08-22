@@ -6,4 +6,3 @@ export * from './tiers.entities';
 export * from './users.entitities';
 export * from './flight_info.entities';
 export * from './points.entities';
-export * from './admin_point_transactions.entities';

@@ -5,7 +5,13 @@ import {
   AuthMemberSignUpDTO,
 } from '@app/common/dto/ms-auth/auth-member.dto';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
-import { Body, Controller, Inject, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Inject,
+  Post,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
@@ -39,10 +45,14 @@ export class AuthController {
   @Throttle({ default: { limit: 5, ttl: 300000 } }) // 5 attempts per 5 minutes per IP
   @Post('/member-portal/sign-in')
   signInMemberPortal(@Body() body: AuthMemberSignInDTO) {
-    return this.authClient.send(
-      { cmd: MessagePatternForMicro.AUTH.MEMBER_SIGNIN },
-      { ...body },
-    );
+    try {
+      return this.authClient.send(
+        { cmd: MessagePatternForMicro.AUTH.MEMBER_SIGNIN },
+        { ...body },
+      );
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   // Member portal sign up

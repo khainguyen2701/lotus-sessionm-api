@@ -1,8 +1,8 @@
-import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
 import {
   UsersOverviewQueryDto,
   UsersTimeseriesQueryDto,
 } from '@app/common/dto/ms-user/admin.dto';
+import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
 import { BadRequestException, Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { EnumSortClaimMilesList } from 'apps/api-gateway/src/dto/claim';
@@ -99,5 +99,22 @@ export class UserController {
   @MessagePattern({ cmd: MessagePatternForMicro.USER.ADMIN_USERS_TIMESERIES })
   async getUsersTimeseries(query: UsersTimeseriesQueryDto) {
     return await this.userService.getUsersTimeseries(query);
+  }
+  @MessagePattern({ cmd: MessagePatternForMicro.USER.ADMIN_GET_DETAIL_USER })
+  async adminGetDetailUser(data: { id: string; adminId: string }) {
+    try {
+      return await this.userService.adminGetDetailUser(data);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @MessagePattern({ cmd: MessagePatternForMicro.USER.ADMIN_UPDATE_USER })
+  async adminUpdateUser(data: { id: string; adminId: string; status: string }) {
+    try {
+      return await this.userService.adminUpdateUser(data);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

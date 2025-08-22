@@ -18,6 +18,8 @@ export const MessagePatternForMicro = {
     // Admin endpoints
     ADMIN_USERS_OVERVIEW: 'user.admin.users_overview',
     ADMIN_USERS_TIMESERIES: 'user.admin.users_timeseries',
+    ADMIN_GET_DETAIL_USER: 'user.admin.get_detail_user',
+    ADMIN_UPDATE_USER: 'user.admin.update_user',
   },
   REWARDS: {
     GET_ALL: 'rewards.get_rewards',

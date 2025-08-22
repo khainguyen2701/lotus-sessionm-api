@@ -87,4 +87,19 @@ export class PointTransactionsEntity {
     default: '',
   })
   reason: string;
+
+  @ManyToOne(() => UsersEntity, (user) => user.transactions, {
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'processed_by' })
+  processed_by: UsersEntity;
+
+  @Column({
+    type: 'enum',
+    enum: ['flight', 'purchase', 'other'],
+    default: 'flight',
+  })
+  request_type: 'flight' | 'purchase' | 'other';
 }

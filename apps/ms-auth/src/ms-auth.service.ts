@@ -40,8 +40,12 @@ export class MsAuthService {
         email,
         'user',
       );
+
       if (!account || Object.keys(account)?.length === 0) {
         throw new BadRequestException('Username or password not match');
+      }
+      if (account.user.status !== 'active') {
+        throw new BadRequestException('User is not active');
       }
       const isMatchPassword = await compare(password, account.password);
       if (!isMatchPassword)
@@ -55,6 +59,7 @@ export class MsAuthService {
         { payload: account.user },
         { secret: process.env.SECRET_KEY_JWT, expiresIn: '14d' },
       );
+
       return {
         access_token: accessToken,
         user_id: account.user.id,

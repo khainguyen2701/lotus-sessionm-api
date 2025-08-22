@@ -14,6 +14,8 @@ import {
   Controller,
   Get,
   Inject,
+  Param,
+  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -24,9 +26,11 @@ import { ClientProxy } from '@nestjs/microservices';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiConsumes,
   ApiHeader,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -35,12 +39,17 @@ import { Throttle } from '@nestjs/throttler';
 
 import { EnumSortClaimMilesList } from '../dto/claim';
 import {
+  AdminUpdateUserDto,
   EditProfileDto,
   EditProfileResponseDto,
 } from '../dto/edit-profile.dto';
 import { FileUploadDto, FileUploadResponseDto } from '../dto/file-upload.dto';
 import {
+  AdminGetDetailUserSchema,
+  AdminGetDetailUserSchemaError,
   AdminGetListUserSchema,
+  AdminUpdateUserSchema,
+  AdminUpdateUserSchemaError,
   UserGetProfileSchemaError,
   UserGetProfileSchemaSuccess,
 } from '../schema/user.schema';
@@ -372,5 +381,103 @@ export class UsersController {
       { cmd: MessagePatternForMicro.USER.ADMIN_GET_LIST_MEMBER },
       payload,
     );
+  }
+
+  @ApiOperation({ summary: 'Get detail user with role admin' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+    description: 'User ID',
+  })
+  @ApiHeader({
+    name: 'x-user-id',
+    description: 'Admin ID (UUID format)',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Get detail user successfully',
+    schema: AdminGetDetailUserSchema,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+    schema: AdminGetDetailUserSchemaError,
+  })
+  @Get('/admin/users/:id')
+  @Roles(RoleBaseAccessControl.Admin)
+  adminGetDetailUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UserIdDecorator() adminId: string,
+  ) {
+    return this.userClient.send(
+      { cmd: MessagePatternForMicro.USER.ADMIN_GET_DETAIL_USER },
+      { id, adminId },
+    );
+  }
+
+  @ApiOperation({ summary: 'Update user with role admin' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+    description: 'User ID',
+  })
+  @ApiHeader({
+    name: 'x-user-id',
+    description: 'Admin ID (UUID format)',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token',
+    required: true,
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+    description: 'User ID',
+  })
+  @ApiBody({
+    type: AdminUpdateUserDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Update user successfully',
+    schema: AdminUpdateUserSchema,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+    schema: AdminUpdateUserSchemaError,
+  })
+  @Put('/admin/users/:id')
+  @Roles(RoleBaseAccessControl.Admin)
+  adminUpdateUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UserIdDecorator() adminId: string,
+    @Body() body: AdminUpdateUserDto,
+  ) {
+    try {
+      if (!body.status) {
+        throw new BadRequestException('Status is required');
+      }
+      if (!adminId) {
+        throw new BadRequestException('Admin ID is required');
+      }
+      return this.userClient.send(
+        { cmd: MessagePatternForMicro.USER.ADMIN_UPDATE_USER },
+        { id, adminId, ...body },
+      );
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

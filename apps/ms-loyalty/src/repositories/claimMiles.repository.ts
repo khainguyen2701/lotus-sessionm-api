@@ -21,7 +21,6 @@ import {
   SyncLogEntity,
   UsersEntity,
 } from '@app/database';
-import { AdminPointTransactionsEntity } from '@app/database/entities/admin_point_transactions.entities';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -40,8 +39,6 @@ export class ClaimMilesRepository {
     private flightInfoRepository: Repository<FlightInfoEntity>,
     @InjectRepository(UsersEntity)
     private usersRepository: Repository<UsersEntity>,
-    @InjectRepository(AdminPointTransactionsEntity)
-    private adminPointTransactionsRepository: Repository<AdminPointTransactionsEntity>,
   ) {}
   async createManualRequest(
     data: CreateManualRequestDTO & { userId: string },
@@ -996,6 +993,7 @@ export class ClaimMilesRepository {
           PointTransactionsEntity,
           {
             user: manualRequest.user,
+            request_type: manualRequest.request_type,
             transaction_type: 'earn', // Use correct enum value
             description: `Points awarded for manual request: ${manualRequest.description}`,
             status: 'processed', // Use correct enum value
@@ -1067,8 +1065,6 @@ export class ClaimMilesRepository {
     await queryRunner.startTransaction();
 
     try {
-      // return await queryRunner.manager.adminDirectMileage(data);
-
       const user = await this.usersRepository
         .createQueryBuilder('user')
         .select(['user.id', 'user.user_name'])
@@ -1091,16 +1087,19 @@ export class ClaimMilesRepository {
       });
 
       const pointsTransaction = queryRunner.manager.create(
-        AdminPointTransactionsEntity,
+        PointTransactionsEntity,
         {
+          user: user,
+          processed_by: { id: data.userId },
+          transaction_type: 'earn',
           description: data.description,
           request_type: data.request_type,
-          type: 'earn',
           status: 'processed',
-          processed_by: { id: data.userId },
-          points_used: point.points_awarded,
-          miles: data.points,
-          user: user,
+          transaction_date: new Date(),
+          reason: '',
+          transaction_source: 'internal',
+          points_used: point?.points_awarded ?? 0,
+          points_used_at: new Date(),
         },
       );
 

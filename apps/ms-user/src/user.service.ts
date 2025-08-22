@@ -161,4 +161,12 @@ export class UserService {
   async getUsersTimeseries(query: UsersTimeseriesQueryDto) {
     return await this.userRepo.getUsersTimeseries(query);
   }
+
+  async adminGetDetailUser(data: { id: string; adminId: string }) {
+    return await this.userRepo.adminGetDetailUser(data);
+  }
+
+  async adminUpdateUser(data: { id: string; adminId: string; status: string }) {
+    return await this.userRepo.adminUpdateUser(data);
+  }
 }
