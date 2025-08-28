@@ -19,7 +19,7 @@ export class AccountsEntity {
     type: 'varchar',
     name: 'account_name',
     length: 100,
-    unique: true,
+    // unique: true,
   })
   account_name: string;
 

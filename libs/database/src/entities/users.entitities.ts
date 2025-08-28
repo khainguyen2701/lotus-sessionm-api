@@ -29,7 +29,7 @@ export class UsersEntity {
     type: 'varchar',
     name: 'user_name',
     length: 100,
-    unique: true,
+    // unique: true,
   })
   user_name: string;
 

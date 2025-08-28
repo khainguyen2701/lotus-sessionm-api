@@ -5,7 +5,7 @@ import {
 } from '@app/common/dto/ms-auth/auth-member.dto';
 import { MessagePatternForMicro } from '@app/common/messagePattern/index.message';
 import { UsersEntity } from '@app/database';
-import { Controller } from '@nestjs/common';
+import { Controller, HttpException, HttpStatus } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { MsAuthService } from './ms-auth.service';
 @Controller()
@@ -29,8 +29,15 @@ export class MsAuthController {
     access_token: string;
     user: Partial<UsersEntity>;
   }> {
-    const data = await this.msAuthService.signUpMemberPortal(body);
-    return data;
+    try {
+      const data = await this.msAuthService.signUpMemberPortal(body);
+      return data;
+    } catch (error: any) {
+      throw new HttpException(
+        error?.message || 'Failed to create manual request',
+        error?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   //Admin portal
