@@ -21,17 +21,17 @@ import { LoyaltyController } from './controllers/loyalty.controller';
       {
         name: 'short',
         ttl: 60000, // 1 minute
-        limit: 10,
+        limit: 100,
       },
       {
         name: 'medium',
         ttl: 600000, // 10 minutes
-        limit: 20,
+        limit: 1000,
       },
       {
         name: 'long',
         ttl: 3600000, // 1 hour
-        limit: 100,
+        limit: 10000,
       },
     ]),
     JwtModule.register({
