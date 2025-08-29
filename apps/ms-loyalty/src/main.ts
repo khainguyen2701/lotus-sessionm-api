@@ -1,3 +1,8 @@
+// Load environment variables trước tất cả
+import 'dotenv/config';
+// Import New Relic monitoring sau khi đã load env vars
+import './../../../newrelic.js';
+
 import { NestFactory } from '@nestjs/core';
 import { MsLoyaltyModule } from './ms-loyalty.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';

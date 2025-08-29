@@ -51,8 +51,6 @@ export const calculatePointsByDistance = (
     promo_multiplier = DEFAULT_PROMO_MULTIPLIER,
   } = params;
 
-  console.log('params', params);
-
   // Validation
   if (!request_type) {
     throw new Error('request_type is required');
@@ -75,7 +73,7 @@ export const calculatePointsByDistance = (
     case 'other':
       // For 'other' type, return 0 points or implement custom logic
       return {
-        points_awarded: 100,
+        points_awarded: amount ? Math.round(amount * promo_multiplier) : 100,
         calculation_details: {
           base_points: 0,
           multipliers: {

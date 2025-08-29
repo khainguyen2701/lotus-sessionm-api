@@ -8,7 +8,6 @@
   "scripts": {
     "build": "nest build --all",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
-    "start:dev:all": "concurrently -n GATEWAY,MS-USER,MS-AUTH,MS-REWARDS,MS-LOYALTY -c green,cyan,magenta,blue,red \"pnpm run start:dev:gateway\" \"pnpm run start:dev:ms-user\" \"pnpm run start:dev:ms-auth\" \"pnpm run start:dev:ms-rewards\" \"pnpm run start:dev:ms-loyalty\"",
     "start:dev:gateway": "nest start api-gateway --watch",
     "start:dev:ms-user": "nest start ms-user --watch",
     "start:dev:ms-auth": "nest start ms-auth --watch",
@@ -36,7 +35,13 @@
     "migration:generate": "npm run typeorm migration:generate -- -n",
     "migration:create": "npm run typeorm migration:create -- -n",
     "migration:run": "npm run typeorm migration:run",
-    "migration:revert": "npm run typeorm migration:revert"
+    "migration:revert": "npm run typeorm migration:revert",
+    "start:newrelic:api-gateway": "NEW_RELIC_APP_NAME=lotus-api-gateway node -r dotenv/config -r newrelic dist/apps/api-gateway/main.js",
+    "start:newrelic:ms-auth": "NEW_RELIC_APP_NAME=lotus-ms-auth node -r dotenv/config -r newrelic dist/apps/ms-auth/main.js",
+    "start:newrelic:ms-user": "NEW_RELIC_APP_NAME=lotus-ms-user node -r dotenv/config -r newrelic dist/apps/ms-user/main.js",
+    "start:newrelic:ms-loyalty": "NEW_RELIC_APP_NAME=lotus-ms-loyalty node -r dotenv/config -r newrelic dist/apps/ms-loyalty/main.js",
+    "start:newrelic:ms-rewards": "NEW_RELIC_APP_NAME=lotus-ms-rewards node -r dotenv/config -r newrelic dist/apps/ms-rewards/main.js",
+    "start:dev:all": "concurrently -n GATEWAY,MS-USER,MS-AUTH,MS-REWARDS,MS-LOYALTY -c green,cyan,magenta,blue,red \"pnpm run start:newrelic:api-gateway\" \"pnpm run start:newrelic:ms-user\" \"pnpm run start:newrelic:ms-auth\" \"pnpm run start:newrelic:ms-rewards\" \"pnpm run start:newrelic:ms-loyalty\""
   },
   "dependencies": {
     "@nestjs/class-transformer": "^0.4.0",
@@ -57,7 +62,9 @@
     "class-validator": "^0.14.2",
     "concurrently": "^9.2.0",
     "csrf-csrf": "^4.0.3",
+    "dotenv": "^17.2.1",
     "helmet": "^8.1.0",
+    "newrelic": "^13.2.1",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",

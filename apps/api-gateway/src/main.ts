@@ -1,3 +1,8 @@
+// Load environment variables trước tất cả
+import 'dotenv/config';
+// Import New Relic monitoring sau khi đã load env vars
+import './../../../newrelic.js';
+
 import { RpcToHttpExceptionFilter } from '@app/common/filters/rpc-exception.filter';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
