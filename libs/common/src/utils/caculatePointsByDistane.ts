@@ -108,10 +108,6 @@ function calculateFlightPoints(params: {
     );
   }
 
-  // Convert km to miles
-  const distance_miles = distance_km * KM_TO_MILES_RATIO;
-  const base_miles = Math.round(distance_miles);
-
   // Get fare class multiplier
   const fare_class_multiplier = FARE_CLASS_MULTIPLIERS[classTicket];
   if (!fare_class_multiplier) {
@@ -120,18 +116,18 @@ function calculateFlightPoints(params: {
 
   // Calculate final miles
   const miles_awarded = Math.round(
-    base_miles * fare_class_multiplier * promo_multiplier,
+    distance_km * fare_class_multiplier * promo_multiplier,
   );
 
   return {
     points_awarded: miles_awarded,
     calculation_details: {
-      base_points: base_miles,
+      base_points: distance_km,
       multipliers: {
         fare_class_multiplier,
         promo_multiplier,
       },
-      formula_used: `${distance_km}km * ${KM_TO_MILES_RATIO} = ${distance_miles.toFixed(2)} miles, rounded to ${base_miles} * ${fare_class_multiplier} * ${promo_multiplier} = ${miles_awarded}`,
+      formula_used: ``,
     },
   };
 }
