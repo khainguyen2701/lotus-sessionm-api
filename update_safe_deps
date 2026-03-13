@@ -1,0 +1,36 @@
+#!/bin/bash
+
+REPORT_DIR="dependency-report"
+LOG_DIR="$REPORT_DIR/logs"
+
+SAFE_FILE="$REPORT_DIR/insight/minor-patch-updates.json"
+LOG_FILE="$LOG_DIR/dependency-update-$(date '+%Y-%m-%d-%H:%M:%S').log"
+
+mkdir -p $LOG_DIR
+
+log() {
+  echo "$1" | tee -a $LOG_FILE
+}
+
+if [ ! -f "$SAFE_FILE" ]; then
+  log "No safe dependency file found"
+  exit 1
+fi
+
+packages=$(jq -r 'keys[]' $SAFE_FILE)
+
+for pkg in $packages
+do
+    before=$(jq -r --arg p "$pkg" '.[$p].current' $SAFE_FILE)
+    target=$(jq -r --arg p "$pkg" '.[$p].wanted' $SAFE_FILE)
+
+    echo "Updating $pkg to $target..."
+
+    npm install "$pkg@$target" > /dev/null 2>&1
+
+    current=$(npm list "$pkg" --depth=0 2>/dev/null | grep "$pkg" | sed -E 's/.*@([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+
+    log "$pkg -> before ($before) -> current ($current) -> $(date '+%Y-%m-%d %H:%M:%S')"
+done
+
+log "Dependency update completed"
