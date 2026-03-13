@@ -1,0 +1,44 @@
+# `dependabot.yml` file with configuration for Dependabot to automatically check for updates to dependencies in the project.
+
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    target-branch: 'develop'
+    schedule:
+      interval: 'daily'
+      #day: 'friday'
+      time: '14:00'
+      timezone: 'Asia/Ho_Chi_Minh'
+    open-pull-requests-limit: 5
+    groups:
+      all-dependencies:
+        patterns:
+          - '*'
+    pull-request-branch-name:
+      separator: '-'
+    commit-message:
+      prefix: 'deps'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'automated'
+    reviewers:
+      - 'trihoang-pct'
+      - 'khanhpham-pct'
+      - 'thienvopct'
+      - 'kamalarieff'
+      - 'khiemngo-pct'
+      - 'giaupct'
+      - 'NurAimanFuad'
+      - 'khai-pct'
+
+    assignees:
+      - 'trihoang-pct'
+      - 'khanhpham-pct'
+      - 'thienvopct'
+      - 'kamalarieff'
+      - 'khiemngo-pct'
+      - 'giaupct'
+      - 'NurAimanFuad'
+      - 'khai-pct'
